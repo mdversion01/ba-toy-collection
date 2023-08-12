@@ -1,0 +1,61 @@
+// Typeahead Select field drop down
+.rbt-menu.dropdown-menu[style] {
+  max-height: 175px !important;
+}
+
+.typeahead-error {
+  border: 1px solid red;
+  border-radius: 0.25rem;
+}
+
+.error {
+  color: red;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+}
+
+.title {
+  background-color:#727272;
+  color: #fff;
+  padding: 0 .8rem;
+  width: 100%;
+
+  &.top {
+    border-radius: 10px 10px 0 0;
+    padding-top: 0.25rem;
+  }
+}
+
+.form-check-label {
+  font-size: 0.9rem;
+}
+
+.form-control:disabled {
+  background-color: #ffffff;
+  opacity: 1;
+  border-radius: 0;
+  border: 1px solid transparent;
+}
+
+.form-control-wrapper {
+  padding: 0.25rem 0.5rem;
+}
+
+.form-control {
+  background-color:#f0f8ff !important;
+}
+
+.read-only {
+  background-color:#f0f8ff !important;
+  font-size: 0.9rem;
+  padding: 0.5rem;
+}
+
+.rbt-menu {
+  font-size: 0.9rem;
+}

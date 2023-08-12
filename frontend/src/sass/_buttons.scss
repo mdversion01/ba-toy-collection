@@ -1,0 +1,18 @@
+.btn-edit {
+  border-radius: 0.2rem;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+
+  &.edit {
+    background-color: green;
+    border: 1px solid green;
+    color: #FFF;
+  }
+
+  &.cancel {
+    background-color: red;
+    border: 1px solid red;
+    color: #FFF;
+  }
+}

@@ -1,0 +1,36 @@
+.modal-header,
+.modal-footer {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.modal-footer {
+  justify-content: flex-end;
+}
+
+.modal-title {
+  margin: 0;
+}
+
+.modal-body {
+    display: block;
+    margin: 0;
+    max-width: 100%;
+    height: auto !important;
+    padding: 0;
+}
+
+.modal-90w {
+    width: 90%;
+    max-width: none !important;
+}
+
+@media (min-width: 576px){
+  .modal-dialog-ex {
+      max-width: 1000px !important;
+      margin-right: auto;
+      margin-left: auto;
+  }
+}
+
