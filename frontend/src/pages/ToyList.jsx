@@ -222,7 +222,10 @@ const ToysList = () => {
         All Toys
       </div>
 
-      <ScrollableContent currentToys={currentToys} />
+      <ScrollableContent 
+        currentToys={currentToys} 
+        dateadded={toys.dateadded}
+      />
 
 
       <div className="pagination-wrapper">
