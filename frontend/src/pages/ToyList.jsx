@@ -94,6 +94,21 @@ const ToysList = () => {
     setCurrentPage(1);
   }, [selectedFilters]);
 
+  // Calculate the total price for the displayed toys
+  // let allTotalQuantity = 0;
+  let allTotalPrice = 0;
+  toys.forEach((toy) => {
+    allTotalQuantity += toy.quantity;
+    allTotalPrice += toy.price * toy.quantity;
+  });
+
+  // let totalQuantity = 0;
+  let totalPrice = 0;
+  currentToys.forEach((toy) => {
+    totalQuantity += toy.quantity;
+    totalPrice += toy.price * toy.quantity;
+  });
+
   return (
 
     <>
@@ -237,6 +252,11 @@ const ToysList = () => {
 
       <div className="page-title">
         All Toys
+
+        <div className="totals">
+          <div>Collection Price: ${allTotalPrice.toFixed(2)}</div>
+          <div className="current-page">Current Page Price: ${totalPrice.toFixed(2)}</div>
+        </div>
       </div>
 
       <ScrollableContent 

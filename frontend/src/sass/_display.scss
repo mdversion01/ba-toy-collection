@@ -33,6 +33,17 @@
   line-height: 1.5;
 }
 
+.totals {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+
+  .collection,
+  .current-page {
+    margin-left: 1.5rem;
+  }
+}
+
 .company-header {
   border-bottom: 1px solid #ccc;
   padding: 10px;
