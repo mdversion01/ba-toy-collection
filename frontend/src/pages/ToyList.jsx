@@ -98,9 +98,9 @@ const ToysList = () => {
 
     <>
 
-      <div className="filter-section">
+<div className="filter-section">
         <div className="row">
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Companies"
@@ -134,7 +134,7 @@ const ToysList = () => {
               ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Brands" value={selectedFilters.brand}
@@ -150,7 +150,7 @@ const ToysList = () => {
                 ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Series"
@@ -182,7 +182,7 @@ const ToysList = () => {
                 ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Collections"
@@ -214,6 +214,23 @@ const ToysList = () => {
                   )
                 ))}
             </Form.Select>
+          </div>
+          <div className="col">
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={() => {
+                // Clear all selected filters
+                setSelectedFilters({
+                  company: '',
+                  brand: '',
+                  series: '',
+                  collection: '',
+                  completed: '',
+                });
+              }}
+            >
+              Clear Filters
+            </button>
           </div>
         </div>
       </div>
