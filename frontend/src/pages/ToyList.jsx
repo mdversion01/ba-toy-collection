@@ -95,14 +95,14 @@ const ToysList = () => {
   }, [selectedFilters]);
 
   // Calculate the total price for the displayed toys
-  // let allTotalQuantity = 0;
+  let allTotalQuantity = 0;
   let allTotalPrice = 0;
   toys.forEach((toy) => {
     allTotalQuantity += toy.quantity;
     allTotalPrice += toy.price * toy.quantity;
   });
 
-  // let totalQuantity = 0;
+  let totalQuantity = 0;
   let totalPrice = 0;
   currentToys.forEach((toy) => {
     totalQuantity += toy.quantity;
