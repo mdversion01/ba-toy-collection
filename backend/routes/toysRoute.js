@@ -146,14 +146,55 @@ router.put('/:id', [
     updates.push('src = ?');
     values.push(src);
   }
-  if (brand !== undefined) {
-    updates.push('brand = ?');
-    values.push(brand);
-  }
   if (company !== undefined) {
     updates.push('company = ?');
     values.push(company);
   }
+  if (brand !== undefined) {
+    updates.push('brand = ?');
+    values.push(brand);
+  }
+  if (series !== undefined) {
+    updates.push('series = ?');
+    values.push(series);
+  }
+  if (collection !== undefined) {
+    updates.push('collection = ?');
+    values.push(collection);
+  }
+  if (variant !== undefined) {
+    updates.push('variant = ?');
+    values.push(variant);
+  }
+  if (reissue !== undefined) {
+    updates.push('reissue = ?');
+    values.push(reissue);
+  }
+  if (price !== undefined) {
+    updates.push('price = ?');
+    values.push(price);
+  }
+  if (toycondition !== undefined) {
+    updates.push('toycondition = ?');
+    values.push(toycondition);
+  }
+  if (upc !== undefined) {
+    updates.push('upc = ?');
+    values.push(upc);
+  }
+  if (notes !== undefined) {
+    updates.push('notes = ?');
+    values.push(notes);
+  }
+  if (quantity !== undefined) {
+    updates.push('quantity = ?');
+    values.push(quantity);
+  }
+  if (completed !== undefined) {
+    updates.push('completed = ?');
+    values.push(completed);
+  }
+  
 
   // ... add similar checks for other fields
 
@@ -163,8 +204,8 @@ router.put('/:id', [
   }
 
   const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
-  values.push(id);
 
+  // Execute the query with values
   db.query(query, values, (err, result) => {
     if (err) {
       console.error(err);
