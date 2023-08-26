@@ -3,28 +3,16 @@ import axios from 'axios';
 import { endpoints } from '../endpoints/Endpoints';
 
 import ToysByCompanyContent from '../components/content/ToysByCompanyContent';
-import { Form, Pagination } from 'react-bootstrap';
+import { Pagination } from 'react-bootstrap';
 
 const ToysByCompany = () => {
   const [toys, setToys] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [toysPerPage] = useState(50); // Number of toys to show per page
 
-  const [filterOptions, setFilterOptions] = useState({
-    companies: [],
-    brands: [],
-    series: [],
-    collections: []
-  });
-
-  const [selectedFilters, setSelectedFilters] = useState({
-    company: '',
-    brand: '',
-    series: '',
-    collection: ''
-  });
-
-  const [filteredToys, setFilteredToys] = useState([]);
+  // Add state for total price and quantity
+  const [allTotalQuantity, setAllTotalQuantity] = useState(0);
+  const [allTotalPrice, setAllTotalPrice] = useState(0);
 
   useEffect(() => {
     axios.get(endpoints.API_URL + 'toys')
@@ -32,220 +20,47 @@ const ToysByCompany = () => {
         const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
         setToys(sortedToys);
 
-        // Extract filter options
-        const companies = [...new Set(sortedToys.map(toy => toy.company))];
-        const brands = [...new Set(sortedToys.map(toy => toy.brand))];
-        const series = [...new Set(sortedToys.map(toy => toy.series))];
-        const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-
-        // Sort filter options alphabetically
-        companies.sort();
-        brands.sort();
-        series.sort();
-        collections.sort();
-
-        // Update filter options in state
-        setFilterOptions({
-          companies,
-          brands,
-          series,
-          collections
+        // Calculate total price and quantity for all toys
+        let totalQuantity = 0;
+        let totalPrice = 0;
+        sortedToys.forEach((toy) => {
+          totalQuantity += toy.quantity;
+          totalPrice += toy.price * toy.quantity;
         });
+
+        setAllTotalQuantity(totalQuantity);
+        setAllTotalPrice(totalPrice);
       })
       .catch((error) => {
         console.error('Error fetching toys:', error);
       });
   }, []);
 
-  useEffect(() => {
-    const filtered = toys.filter(toy => (
-      (!selectedFilters.company || toy.company === selectedFilters.company) &&
-      (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-      (!selectedFilters.series || toy.series === selectedFilters.series) &&
-      (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
-      (!selectedFilters.completed || toy.completed === selectedFilters.completed)
-    ));
-
-    setFilteredToys(filtered);
-  }, [toys, selectedFilters]);
-
   // Calculate the range of pages to display
   const pageRange = 8;
-  //const totalPages = Math.ceil(toys.length / toysPerPage);
-  const totalPages = Math.ceil(filteredToys.length / toysPerPage);
+  const totalPages = Math.ceil(toys.length / toysPerPage);
 
   const startPage = Math.max(currentPage - Math.floor(pageRange / 2), 1);
   const endPage = Math.min(startPage + pageRange - 1, totalPages);
 
-
   // Get current toys for the current page
   const indexOfLastToy = currentPage * toysPerPage;
   const indexOfFirstToy = indexOfLastToy - toysPerPage;
-  const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
+  const currentToys = toys.slice(indexOfFirstToy, indexOfLastToy);
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedFilters]);
-
-   // Calculate the total price for the displayed toys
-   let allTotalQuantity = 0;
-   let allTotalPrice = 0;
-   toys.forEach((toy) => {
-     allTotalQuantity += toy.quantity;
-     allTotalPrice += toy.price * toy.quantity;
-   });
- 
-   let totalQuantity = 0;
-   let totalPrice = 0;
-   currentToys.forEach((toy) => {
-     totalQuantity += toy.quantity;
-     totalPrice += toy.price * toy.quantity;
-   });
+  // Calculate the total price for the currently displayed toys
+  let totalQuantity = 0;
+  let totalPrice = 0;
+  currentToys.forEach((toy) => {
+    totalQuantity += toy.quantity;
+    totalPrice += toy.price * toy.quantity;
+  });
 
   return (
-
     <>
-
-      <div className="filter-section">
-        <div className="row">
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Companies"
-              value={selectedFilters.company}
-              onChange={(e) => {
-                const selectedCompany = e.target.value;
-                const selectedBrand = selectedFilters.brand;
-
-                if (selectedCompany === '') {
-                  // Reset all filters when "All Companies" is selected
-                  setSelectedFilters({
-                    company: '',
-                    brand: '',
-                    series: '',
-                    collection: ''
-                  });
-                } else {
-                  setSelectedFilters({
-                    ...selectedFilters,
-                    company: selectedCompany,
-                    brand: selectedCompany !== selectedFilters.company ? '' : selectedBrand,
-                  });
-                }
-              }}
-            >
-              <option value="">All Companies</option>
-              {filterOptions.companies.map((company) => (
-                <option key={company} value={company}>
-                  {company}
-                </option>
-              ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Brands" value={selectedFilters.brand}
-              onChange={(e) => setSelectedFilters({ ...selectedFilters, brand: e.target.value })}
-            >
-              <option value="">All Brands</option>
-              {filterOptions.brands
-                .filter((brand) => !selectedFilters.company || toys.some((toy) => toy.company === selectedFilters.company && toy.brand === brand))
-                .map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Series"
-              value={selectedFilters.series}
-              onChange={(e) => {
-                const selectedSeries = e.target.value;
-                setSelectedFilters({ ...selectedFilters, series: selectedSeries });
-              }}
-            >
-              <option value="">All Series</option>
-              {filterOptions.series
-                .filter((series) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === series
-                  )
-                )
-                .map((series) => (
-                  // Filter out blank/empty series
-                  series && (
-                    <option key={series} value={series}>
-                      {series}
-                    </option>
-                  )
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Collections"
-              value={selectedFilters.collection}
-              onChange={(e) => {
-                const selectedCollection = e.target.value;
-                setSelectedFilters({ ...selectedFilters, collection: selectedCollection });
-              }}
-            >
-              <option value="">All Collections</option>
-              {filterOptions.collections
-                .filter((collection) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === selectedFilters.series &&
-                      toy.collection === collection
-                  )
-                )
-                .map((collection) => (
-                  // Filter out blank/empty collections
-                  collection && (
-                    <option key={collection} value={collection}>
-                      {collection}
-                    </option>
-                  )
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <button
-              className="btn btn-sm btn-secondary"
-              onClick={() => {
-                // Clear all selected filters
-                setSelectedFilters({
-                  company: '',
-                  brand: '',
-                  series: '',
-                  collection: '',
-                  completed: '',
-                });
-              }}
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="page-title">
         Toys by Company
 
@@ -255,11 +70,12 @@ const ToysByCompany = () => {
         </div>
       </div>
 
-      <ToysByCompanyContent 
-        currentToys={currentToys} 
-        dateadded={toys.dateadded}
+      <ToysByCompanyContent
+        currentPage={currentPage}
+        toysPerPage={toysPerPage}
+        currentToys={currentToys}  // Pass the current toys to the child component
+        paginate={paginate} // Pass the paginate function to the child component
       />
-
 
       <div className="pagination-wrapper">
         <Pagination size="sm">
@@ -279,8 +95,6 @@ const ToysByCompany = () => {
         </Pagination>
       </div>
     </>
-
-
   );
 };
 

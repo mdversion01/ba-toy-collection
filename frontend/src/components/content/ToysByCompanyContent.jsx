@@ -1,79 +1,13 @@
-import React, { useReducer, useEffect } from 'react';
-import axios from 'axios';
-import { endpoints } from '../../endpoints/Endpoints';
+import React from 'react';
 import Thumb from './Thumb';
-
 import BrandHeader from './BrandHeader';
 import SeriesHeader from './SeriesHeader';
 import CollectionHeader from './CollectionHeader';
 import CompletedSection from './CompletedSection';
 
-const initialState = {
-  toys: [],
-  loading: true,
-  error: null,
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'FETCH_SUCCESS':
-      return {
-        ...state,
-        toys: action.payload,
-        loading: false,
-        error: null,
-      };
-    case 'FETCH_ERROR':
-      return {
-        ...state,
-        toys: [],
-        loading: false,
-        error: action.payload,
-      };
-    case 'TOY_ADDED':
-      return {
-        ...state,
-        toys: [...state.toys, action.payload],
-      };
-    default:
-      return state;
-  }
-};
-
-const ToysByCompanyContent = ({ rowHeight }) => {
-  // const [toys, setToys] = useState([]);
-  const [state, dispatch] = useReducer(reducer, initialState);
-
-  useEffect(() => {
-    
-    const fetchData = async () => {
-      try {
-        // Fetch data from the API endpoint using Axios
-        const response = await axios.get(endpoints.API_URL + 'toys'); // Replace '/api/toys' with the actual endpoint URL
-        dispatch({ type: 'FETCH_SUCCESS', payload: response.data });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        dispatch({ type: 'FETCH_ERROR', payload: error.message });
-      }
-    };
-
-    fetchData();
-
-  }, []);
-
-  const { toys, loading, error } = state;
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-  
-
-  if (!toys || toys.length === 0) {
-    return null; // Handle the case when toys is undefined or empty
+const ToysByCompanyContent = ({ rowHeight, currentToys }) => {
+  if (!currentToys || currentToys.length === 0) {
+    return null;
   }
 
   const groupToysByProperty = (toys, property) => {
@@ -87,7 +21,7 @@ const ToysByCompanyContent = ({ rowHeight }) => {
     }, {});
   };
 
-  const groupToysByCompany = groupToysByProperty(toys, "company");
+  const groupToysByCompany = groupToysByProperty(currentToys, "company");
   const sortedCompanies = Object.keys(groupToysByCompany).sort((a, b) => a.localeCompare(b));
 
   const groupToysByBrand = (toys, company) => {
@@ -113,62 +47,56 @@ const ToysByCompanyContent = ({ rowHeight }) => {
   return (
     <div className="scrollable-content">
       <div className="toy-list-by-company">
-      
-      {sortedCompanies.map((company, i) => (
-        <React.Fragment key={i}>
-
-          <div className="company-header">{company}</div>
-
-          {Object.keys(groupToysByBrand(toys, company))
-            .sort((a, b) => a.localeCompare(b))
-            .map((brand, i) => (
-              <React.Fragment key={i}>
-                
-                {Object.keys(groupToysBySeries(toys, company, brand))
-                  .sort((a, b) => a.localeCompare(b))
-                  .map((series, i) => (
-                    <React.Fragment key={i}>
-                      
-                      {Object.keys(groupToysByCollection(toys, company, brand, series))
-                        .sort((a, b) => a.localeCompare(b))
-                        .map((collection, i) => (
-                          <React.Fragment key={i}>
-                            {Object.keys(groupToysByCompleted(toys, company, brand, series, collection))
-                              .sort((a, b) => a.localeCompare(b))
-                              .map((completed, i) => {
-                                const totalToys = groupToysByCompleted(toys, company, brand, series, collection)[completed].reduce((a, v) => a + v.quantity, 0);
-                                return (
-                                  <React.Fragment key={i}>
-                                    <div className="titles-containers">
-                                      <div className="titles__wrapper">
-                                        <BrandHeader brand={brand} />
-                                        {series && <SeriesHeader series={series} />}
-                                        {collection && <CollectionHeader collection={collection} />}
-                                        {completed === 'Yes' && <CompletedSection completed={completed} />}
+        {sortedCompanies.map((company, i) => (
+          <React.Fragment key={i}>
+            <div className="company-header">{company}</div>
+            {Object.keys(groupToysByBrand(currentToys, company))
+              .sort((a, b) => a.localeCompare(b))
+              .map((brand, i) => (
+                <React.Fragment key={i}>
+                  {Object.keys(groupToysBySeries(currentToys, company, brand))
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((series, i) => (
+                      <React.Fragment key={i}>
+                        {Object.keys(groupToysByCollection(currentToys, company, brand, series))
+                          .sort((a, b) => a.localeCompare(b))
+                          .map((collection, i) => (
+                            <React.Fragment key={i}>
+                              {Object.keys(groupToysByCompleted(currentToys, company, brand, series, collection))
+                                .sort((a, b) => a.localeCompare(b))
+                                .map((completed, i) => {
+                                  const totalToys = groupToysByCompleted(currentToys, company, brand, series, collection)[completed].reduce((a, v) => a + v.quantity, 0);
+                                  return (
+                                    <React.Fragment key={i}>
+                                      <div className="titles-containers">
+                                        <div className="titles__wrapper">
+                                          <BrandHeader brand={brand} />
+                                          {series && <SeriesHeader series={series} />}
+                                          {collection && <CollectionHeader collection={collection} />}
+                                          {completed === 'Yes' && <CompletedSection completed={completed} />}
+                                        </div>
+                                        <div className="toy__count">
+                                          <div className="toy__count-txt">Number in<br /> Collection</div>
+                                          <div className="toy__count-total">{totalToys}</div>
+                                        </div>
                                       </div>
-                                      <div className="toy__count">
-                                        <div className="toy__count-txt">Number in<br /> Collection</div>
-                                        <div className="toy__count-total">{totalToys}</div>
+                                      <div className="thumbs_wrapper">
+                                        {groupToysByCompleted(currentToys, company, brand, series, collection)[completed].map((toy) => (
+                                          <Thumb key={toy.id} toy={toy} rowHeight={rowHeight} />
+                                        ))}
                                       </div>
-                                    </div>
-                                    <div className="thumbs_wrapper">
-                                      {groupToysByCompleted(toys, company, brand, series, collection)[completed].map((toy) => (
-                                        <Thumb key={toy.id} toy={toy} rowHeight={rowHeight} />
-                                      ))}
-                                    </div>
-                                  </React.Fragment>
-                                );
-                              })}
-                          </React.Fragment>
-                        ))}
-                    </React.Fragment>
-                  ))}
-              </React.Fragment>
-            ))}
-        </React.Fragment>
-      ))}
-      
-    </div>
+                                    </React.Fragment>
+                                  );
+                                })}
+                            </React.Fragment>
+                          ))}
+                      </React.Fragment>
+                    ))}
+                </React.Fragment>
+              ))}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 };
