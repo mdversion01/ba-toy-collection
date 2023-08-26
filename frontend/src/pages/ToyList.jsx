@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { endpoints } from '../endpoints/Endpoints';
 
-import ScrollableContent from '../components/content/ScrollableContent';
+import ToyListContent from '../components/content/ToyListContent';
 import { Form, Pagination } from 'react-bootstrap';
 
 const ToysList = () => {
@@ -14,16 +14,14 @@ const ToysList = () => {
     companies: [],
     brands: [],
     series: [],
-    collections: [],
-    completed: [],
+    collections: []
   });
 
   const [selectedFilters, setSelectedFilters] = useState({
     company: '',
     brand: '',
     series: '',
-    collection: '',
-    completed: '',
+    collection: ''
   });
 
   const [filteredToys, setFilteredToys] = useState([]);
@@ -39,7 +37,6 @@ const ToysList = () => {
         const brands = [...new Set(sortedToys.map(toy => toy.brand))];
         const series = [...new Set(sortedToys.map(toy => toy.series))];
         const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-        const completed = [...new Set(sortedToys.map(toy => toy.completed))];
 
         // Sort filter options alphabetically
         companies.sort();
@@ -52,8 +49,7 @@ const ToysList = () => {
           companies,
           brands,
           series,
-          collections,
-          completed,
+          collections
         });
       })
       .catch((error) => {
@@ -94,13 +90,28 @@ const ToysList = () => {
     setCurrentPage(1);
   }, [selectedFilters]);
 
+   // Calculate the total price for the displayed toys
+   let allTotalQuantity = 0;
+   let allTotalPrice = 0;
+   toys.forEach((toy) => {
+     allTotalQuantity += toy.quantity;
+     allTotalPrice += toy.price * toy.quantity;
+   });
+ 
+   let totalQuantity = 0;
+   let totalPrice = 0;
+   currentToys.forEach((toy) => {
+     totalQuantity += toy.quantity;
+     totalPrice += toy.price * toy.quantity;
+   });
+
   return (
 
     <>
 
       <div className="filter-section">
         <div className="row">
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Companies"
@@ -134,7 +145,7 @@ const ToysList = () => {
               ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Brands" value={selectedFilters.brand}
@@ -150,7 +161,7 @@ const ToysList = () => {
                 ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Series"
@@ -182,7 +193,7 @@ const ToysList = () => {
                 ))}
             </Form.Select>
           </div>
-          <div className="col-3">
+          <div className="col">
             <Form.Select
               size="sm"
               aria-label="Collections"
@@ -215,14 +226,36 @@ const ToysList = () => {
                 ))}
             </Form.Select>
           </div>
+          <div className="col">
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={() => {
+                // Clear all selected filters
+                setSelectedFilters({
+                  company: '',
+                  brand: '',
+                  series: '',
+                  collection: '',
+                  completed: '',
+                });
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="page-title">
         All Toys
+
+        <div className="totals">
+          <div>Collection Price: ${allTotalPrice.toFixed(2)}</div>
+          <div className="current-page">Current Page Price: ${totalPrice.toFixed(2)}</div>
+        </div>
       </div>
 
-      <ScrollableContent 
+      <ToyListContent 
         currentToys={currentToys} 
         dateadded={toys.dateadded}
       />

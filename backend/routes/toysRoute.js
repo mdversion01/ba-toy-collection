@@ -135,36 +135,32 @@ router.put('/:id', [
     return;
   }
 
+  const fieldsToUpdate = [
+    'name', 'src', 'brand', 'company', 'series', 'collection',
+    'variant', 'reissue', 'year', 'price', 'toycondition',
+    'upc', 'notes', 'quantity', 'completed'
+  ];
+  
   const updates = [];
   const values = [];
-
-  if (name !== undefined) {
-    updates.push('name = ?');
-    values.push(name);
-  }
-  if (src !== undefined) {
-    updates.push('src = ?');
-    values.push(src);
-  }
-  if (brand !== undefined) {
-    updates.push('brand = ?');
-    values.push(brand);
-  }
-  if (company !== undefined) {
-    updates.push('company = ?');
-    values.push(company);
-  }
-
-  // ... add similar checks for other fields
+  
+  fieldsToUpdate.forEach(field => {
+    if (req.body[field] !== undefined) {
+      updates.push(`${field} = ?`);
+      values.push(req.body[field]);
+    }
+  });
 
   if (updates.length === 0) {
     res.status(400).json({ error: 'No fields to update' });
     return;
   }
 
-  const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
-  values.push(id);
+  values.push(id); // Add the ID as the last value for the WHERE clause
 
+  const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
+
+  // Execute the query with values
   db.query(query, values, (err, result) => {
     if (err) {
       console.error(err);
@@ -176,6 +172,7 @@ router.put('/:id', [
     }
   });
 });
+
 
 // Route to delete a toy by ID
 router.delete('/:id', (req, res) => {

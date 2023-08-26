@@ -108,7 +108,9 @@ const ThumbModal = ({
 
   const handleUpdateToy = async () => {
     try {
-      await axios.put(endpoints.API_URL + 'toys/' + updatedToy.id, updatedToy); // Fixed using updatedToy.id instead of toy.id
+      console.log('Updating toy with data:', updatedToy);
+      const response = await axios.put(endpoints.API_URL + 'toys/' + updatedToy.id, updatedToy);
+      console.log('Response from server:', response.data); // Log the server response
       console.log('Toy updated successfully');
       handleModalClose();
       setEditMode(false);
