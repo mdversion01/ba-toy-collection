@@ -1,7 +1,7 @@
 import React from 'react';
 import Thumb from '../content/Thumb';
 
-const ScrollableContent = ({ currentToys }) => {
+const ToyListContent = ({ currentToys }) => {
 
   return (
     <div className="scrollable-content">
@@ -17,4 +17,4 @@ const ScrollableContent = ({ currentToys }) => {
   );
 }
 
-export default ScrollableContent;
+export default ToyListContent;
