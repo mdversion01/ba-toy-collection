@@ -135,8 +135,21 @@ router.put('/:id', [
     return;
   }
 
+  // const fieldsToUpdate = [
+  //   'name', 'src', 'brand', 'company', 'series', 'collection',
+  //   'variant', 'reissue', 'year', 'price', 'toycondition',
+  //   'upc', 'notes', 'quantity', 'completed'
+  // ];
+  
   const updates = [];
   const values = [];
+  
+  // fieldsToUpdate.forEach(field => {
+  //   if (req.body[field] !== undefined) {
+  //     updates.push(`${field} = ?`);
+  //     values.push(req.body[field]);
+  //   }
+  // }); 
 
   if (name !== undefined) {
     updates.push('name = ?');
@@ -204,6 +217,7 @@ router.put('/:id', [
   }
 
   const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
+  // values.push(id);
 
   // Execute the query with values
   db.query(query, values, (err, result) => {
