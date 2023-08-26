@@ -135,89 +135,30 @@ router.put('/:id', [
     return;
   }
 
-  // const fieldsToUpdate = [
-  //   'name', 'src', 'brand', 'company', 'series', 'collection',
-  //   'variant', 'reissue', 'year', 'price', 'toycondition',
-  //   'upc', 'notes', 'quantity', 'completed'
-  // ];
+  const fieldsToUpdate = [
+    'name', 'src', 'brand', 'company', 'series', 'collection',
+    'variant', 'reissue', 'year', 'price', 'toycondition',
+    'upc', 'notes', 'quantity', 'completed'
+  ];
   
   const updates = [];
   const values = [];
   
-  // fieldsToUpdate.forEach(field => {
-  //   if (req.body[field] !== undefined) {
-  //     updates.push(`${field} = ?`);
-  //     values.push(req.body[field]);
-  //   }
-  // }); 
-
-  if (name !== undefined) {
-    updates.push('name = ?');
-    values.push(name);
-  }
-  if (src !== undefined) {
-    updates.push('src = ?');
-    values.push(src);
-  }
-  if (company !== undefined) {
-    updates.push('company = ?');
-    values.push(company);
-  }
-  if (brand !== undefined) {
-    updates.push('brand = ?');
-    values.push(brand);
-  }
-  if (series !== undefined) {
-    updates.push('series = ?');
-    values.push(series);
-  }
-  if (collection !== undefined) {
-    updates.push('collection = ?');
-    values.push(collection);
-  }
-  if (variant !== undefined) {
-    updates.push('variant = ?');
-    values.push(variant);
-  }
-  if (reissue !== undefined) {
-    updates.push('reissue = ?');
-    values.push(reissue);
-  }
-  if (price !== undefined) {
-    updates.push('price = ?');
-    values.push(price);
-  }
-  if (toycondition !== undefined) {
-    updates.push('toycondition = ?');
-    values.push(toycondition);
-  }
-  if (upc !== undefined) {
-    updates.push('upc = ?');
-    values.push(upc);
-  }
-  if (notes !== undefined) {
-    updates.push('notes = ?');
-    values.push(notes);
-  }
-  if (quantity !== undefined) {
-    updates.push('quantity = ?');
-    values.push(quantity);
-  }
-  if (completed !== undefined) {
-    updates.push('completed = ?');
-    values.push(completed);
-  }
-  
-
-  // ... add similar checks for other fields
+  fieldsToUpdate.forEach(field => {
+    if (req.body[field] !== undefined) {
+      updates.push(`${field} = ?`);
+      values.push(req.body[field]);
+    }
+  });
 
   if (updates.length === 0) {
     res.status(400).json({ error: 'No fields to update' });
     return;
   }
 
+  values.push(id); // Add the ID as the last value for the WHERE clause
+
   const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
-  // values.push(id);
 
   // Execute the query with values
   db.query(query, values, (err, result) => {
@@ -231,6 +172,7 @@ router.put('/:id', [
     }
   });
 });
+
 
 // Route to delete a toy by ID
 router.delete('/:id', (req, res) => {

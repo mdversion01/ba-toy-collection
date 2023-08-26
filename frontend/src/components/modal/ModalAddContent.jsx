@@ -6,7 +6,7 @@ import { Modal, Button } from 'react-bootstrap';
 import TypeaheadSelectField from '../forms/TypeaheadSelectField';
 import FormField from '../forms/FormField';
 
-const ModalAddContent = props => {
+const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const [name, setName] = useState('');
   const [src, setSrc] = useState('');
@@ -237,6 +237,18 @@ const ModalAddContent = props => {
     console.log(newToy);
   };
 
+  // const submitToysDatabase = async (toyData) => {
+  //   try {
+  //     const response = await axios.post(endpoints.API_URL + 'toys', toyData);
+  //     const newToy = response.data;
+  //     console.log(newToy);
+  //     onAddToy(newToy); // Call the onAddToy function with the newToy
+  //     handleClose(); // Close the modal
+  //   } catch (error) {
+  //     console.error('Error submitting toy:', error);
+  //   }
+  // };
+
   const clearFormInputs = () => {
     // Clear form inputs by resetting the state
     setName('');
@@ -315,7 +327,7 @@ const ModalAddContent = props => {
   return (
     <>
       <Button variant="link" className="nav-link" onClick={handleShow}>
-        {props.buttonText}
+        {buttonText}
       </Button>
 
 
