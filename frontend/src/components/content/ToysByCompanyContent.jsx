@@ -5,7 +5,7 @@ import SeriesHeader from './SeriesHeader';
 import CollectionHeader from './CollectionHeader';
 import CompletedSection from './CompletedSection';
 
-const ToysByCompanyContent = ({ rowHeight, currentToys }) => {
+const ToysByCompanyContent = ({ rowHeight, currentToys, toys, currentPage, toysPerPage }) => {
   if (!currentToys || currentToys.length === 0) {
     return null;
   }
@@ -50,22 +50,22 @@ const ToysByCompanyContent = ({ rowHeight, currentToys }) => {
         {sortedCompanies.map((company, i) => (
           <React.Fragment key={i}>
             <div className="company-header">{company}</div>
-            {Object.keys(groupToysByBrand(currentToys, company))
+            {Object.keys(groupToysByBrand(toys, company))
               .sort((a, b) => a.localeCompare(b))
               .map((brand, i) => (
                 <React.Fragment key={i}>
-                  {Object.keys(groupToysBySeries(currentToys, company, brand))
+                  {Object.keys(groupToysBySeries(toys, company, brand))
                     .sort((a, b) => a.localeCompare(b))
                     .map((series, i) => (
                       <React.Fragment key={i}>
-                        {Object.keys(groupToysByCollection(currentToys, company, brand, series))
+                        {Object.keys(groupToysByCollection(toys, company, brand, series))
                           .sort((a, b) => a.localeCompare(b))
                           .map((collection, i) => (
                             <React.Fragment key={i}>
-                              {Object.keys(groupToysByCompleted(currentToys, company, brand, series, collection))
+                              {Object.keys(groupToysByCompleted(toys, company, brand, series, collection))
                                 .sort((a, b) => a.localeCompare(b))
                                 .map((completed, i) => {
-                                  const totalToys = groupToysByCompleted(currentToys, company, brand, series, collection)[completed].reduce((a, v) => a + v.quantity, 0);
+                                  const totalToys = groupToysByCompleted(toys, company, brand, series, collection)[completed].reduce((a, v) => a + v.quantity, 0);
                                   return (
                                     <React.Fragment key={i}>
                                       <div className="titles-containers">
@@ -81,7 +81,7 @@ const ToysByCompanyContent = ({ rowHeight, currentToys }) => {
                                         </div>
                                       </div>
                                       <div className="thumbs_wrapper">
-                                        {groupToysByCompleted(currentToys, company, brand, series, collection)[completed].map((toy) => (
+                                        {groupToysByCompleted(toys, company, brand, series, collection)[completed].map((toy) => (
                                           <Thumb key={toy.id} toy={toy} rowHeight={rowHeight} />
                                         ))}
                                       </div>

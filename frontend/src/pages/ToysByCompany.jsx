@@ -8,7 +8,7 @@ import { Pagination } from 'react-bootstrap';
 const ToysByCompany = () => {
   const [toys, setToys] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [toysPerPage] = useState(50); // Number of toys to show per page
+  const [toysPerPage] = useState(100); // Number of toys to show per page
 
   // Add state for total price and quantity
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
@@ -17,8 +17,22 @@ const ToysByCompany = () => {
   useEffect(() => {
     axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
-        const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
-        setToys(sortedToys);
+        // const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
+        // console.log("Sorted Toys:", sortedToys); // Add this line
+        // setToys(response.data);
+        const sortedToys = response.data.sort((a, b) => {
+          const companyComparison = a.company.localeCompare(b.company);
+          if (companyComparison !== 0) return companyComparison;
+  
+          const brandComparison = a.brand.localeCompare(b.brand);
+          if (brandComparison !== 0) return brandComparison;
+  
+          const seriesComparison = a.series.localeCompare(b.series);
+          if (seriesComparison !== 0) return seriesComparison;
+  
+          return a.collection.localeCompare(b.collection);
+        });
+      setToys(sortedToys);
 
         // Calculate total price and quantity for all toys
         let totalQuantity = 0;
@@ -74,7 +88,8 @@ const ToysByCompany = () => {
         currentPage={currentPage}
         toysPerPage={toysPerPage}
         currentToys={currentToys}  // Pass the current toys to the child component
-        paginate={paginate} // Pass the paginate function to the child component
+        toys={toys} // Pass all toys to the child component
+        //paginate={paginate} // Pass the paginate function to the child component
       />
 
       <div className="pagination-wrapper">
