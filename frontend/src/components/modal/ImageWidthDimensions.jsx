@@ -43,7 +43,6 @@ const ImageWithDimensions = ({ src, alt }) => {
 
   return (
     <div 
-      className="info__image-wrapper" 
       style={divStyle}
     >
     <img
