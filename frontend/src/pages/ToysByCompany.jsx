@@ -17,9 +17,6 @@ const ToysByCompany = () => {
   useEffect(() => {
     axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
-        // const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
-        // console.log("Sorted Toys:", sortedToys); // Add this line
-        // setToys(response.data);
         const sortedToys = response.data.sort((a, b) => {
           const companyComparison = a.company.localeCompare(b.company);
           if (companyComparison !== 0) return companyComparison;
