@@ -17,20 +17,33 @@ const formatInputData = (req, res, next) => {
 
 // Sanitization rules for the PUT and POST routes
 const sanitizationRules = [
-  body('name').trim().escape(),
+  body('name').trim().customSanitizer(value => {
+    // Allow only letters, numbers, spaces, hyphens, commas, periods, single quotes, forward slashes, and parentheses
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
   body('src').trim(),
-  body('brand').trim().escape(),
-  body('series').trim().escape(),
-  body('collection').trim().escape(),
+  body('company').trim().customSanitizer(value => {
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
+  body('brand').trim().customSanitizer(value => {
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
+  body('series').trim().customSanitizer(value => {
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
+  body('collection').trim().customSanitizer(value => {
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
   body('variant').trim().escape(),
   body('reissue').trim().escape(),
-  body('company').trim().escape(),
   body('year').toInt(),
   body('price').toFloat(),
   body('toycondition').trim().escape(),
   body('upc').trim().escape(),
   body('dateadded').trim().escape(),
-  body('notes').trim().escape(),
+  body('notes').trim().customSanitizer(value => {
+    return value.replace(/[^a-zA-Z0-9',/().\s\-]/g, '');
+  }),
   body('completed').trim().escape(),
   body('quantity').toInt(),
 ];
