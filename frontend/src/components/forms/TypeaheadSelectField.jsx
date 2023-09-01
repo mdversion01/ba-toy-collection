@@ -9,24 +9,24 @@ const TypeaheadSelectField = props => {
   };
 
   return (
-    <Form.Group 
+    <Form.Group
       controlId={`form${toTitleCase(props.labelName)}`}
     >
       <Form.Label className="title">{props.labelName}</Form.Label>
       <div className="form-control-wrapper">
-      <div className={props.errors ? 'typeahead-error' : ''}>
-        <Typeahead
-          allowNew
-          id={props.id}
-          options={props.options}
-          selected={[...props.select, ...(props.new ? [{ label: props.new, customOption: true }] : [])]}
-          onChange={props.handler}
-          onInputChange={(input) => props.set(input)}
-          placeholder={props.placeholder}
-          size="sm"
-        />
-      </div>
-      {props.errors && <span className="error">{props.errors}</span>}
+        <div className={props.errors ? 'typeahead-error' : ''}>
+          <Typeahead
+            allowNew
+            id={props.id}
+            options={props.options}
+            selected={[...props.select, ...(props.new ? [{ label: props.new, customOption: true }] : [])]}
+            onChange={props.handler}
+            onInputChange={(input) => props.set(input)}
+            placeholder={props.placeholder}
+            size="sm"
+          />
+        </div>
+        {props.errors && <span className="error">{props.errors}</span>}
       </div>
     </Form.Group>
   );
