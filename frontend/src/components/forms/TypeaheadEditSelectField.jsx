@@ -14,7 +14,7 @@ const TypeaheadEditSelectField = props => {
     >
       <Form.Label className="title">{props.labelName}</Form.Label>
       <div className={props.fcw}>
-        {/* <div className={props.errors ? 'typeahead-error' : ''}> */}
+        <div className={props.errors ? 'typeahead-error' : ''}>
           <Typeahead
             allowNew
             id={props.id}
@@ -27,8 +27,8 @@ const TypeaheadEditSelectField = props => {
             selected={props.selectItem}
             onChange={props.handler}
           />
-        {/* </div> */}
-        {/* {props.errors && <span className="error">{props.errors}</span>} */}
+        </div>
+        {props.errors && <span className="error">{props.errors}</span>}
       </div>
     </Form.Group>
   );

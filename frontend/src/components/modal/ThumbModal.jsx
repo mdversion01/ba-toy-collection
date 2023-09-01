@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { endpoints } from '../../endpoints/Endpoints';
 import axios from 'axios';
 import moment from 'moment';
+import validator from 'validator';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import ImageWithDimensions from './ImageWidthDimensions'; // Fixed import statement
@@ -25,6 +26,88 @@ const ThumbModal = ({
   const [selectedSeries, setSelectedSeries] = useState([]);
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState([]);
+  const [errors, setErrors] = useState({});
+
+  const [validationErrors, setValidationErrors] = useState({
+    name: '',
+    src: '',
+    company: '',
+    brand: '',
+  });
+
+  const validateYear = (year) => {
+    if (!validator.isNumeric(year.toString())) {
+      return 'Year must be a number';
+    }
+    const currentYear = new Date().getFullYear();
+    if (parseInt(year, 10) > currentYear) {
+      return 'Year cannot be in the future';
+    }
+    return null; // No errors
+  };
+
+  const validateQuantity = (quantity) => {
+    if (!validator.isNumeric(quantity.toString())) {
+      return 'Quantity must be a number';
+    }
+    return null; // No errors
+  };
+
+  const validatePrice = (price) => {
+    if (!validator.isNumeric(price) && !validator.isCurrency(price, { allow_negatives: false })) {
+      return 'Price must be a number or a valid currency amount';
+    }
+    return null; // No errors
+  };
+
+  const validateForm = () => {
+    const validationErrors = {};
+
+    if (!updatedToy.name) {
+      validationErrors.name = "A name is required";
+    }
+
+    if (!updatedToy.src) {
+      validationErrors.src = "Image is required";
+    }
+
+    if ((!updatedToy.newBrand && (!selectedBrand || selectedBrand.length === 0)) || !updatedToy.brand) {
+      validationErrors.brand = "Brand is required";
+    }
+  
+    if ((!updatedToy.newCompany && (!selectedCompany || selectedCompany.length === 0)) || !updatedToy.company) {
+      validationErrors.company = "Company is required";
+    }
+
+    if (!updatedToy.year) {
+      validationErrors.year = "Year is required";
+    } else {
+      const yearError = validateYear(updatedToy.year);
+      if (yearError) {
+        validationErrors.year = yearError;
+      }
+    }
+
+    if (!updatedToy.quantity) {
+      validationErrors.quantity = "Quantity is required";
+    } else {
+      const quantityError = validateQuantity(updatedToy.quantity);
+      if (quantityError) {
+        validationErrors.quantity = quantityError;
+      }
+    }
+
+    if (!updatedToy.price) {
+      validationErrors.price = "Price is required";
+    } else {
+      const priceError = validatePrice(updatedToy.price);
+      if (priceError) {
+        validationErrors.price = priceError;
+      }
+    }
+
+    return validationErrors;
+  };
 
   // Add useEffect to set the updatedToy state with the original toy object when the modal is opened
   useEffect(() => {
@@ -107,6 +190,14 @@ const ThumbModal = ({
   };
 
   const handleUpdateToy = async () => {
+    // Validate form inputs
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      // Update the validation errors state
+      setValidationErrors(validationErrors);
+      return;
+    }
+
     try {
       console.log('Updating toy with data:', updatedToy);
       const response = await axios.put(endpoints.API_URL + 'toys/' + updatedToy.id, updatedToy);
@@ -123,23 +214,25 @@ const ThumbModal = ({
     if (!editMode) {
       return;
     }
-    
+
     setUpdatedToy((prevToy) => ({
       ...prevToy,
       [name]: prevToy[name] === 'No' ? 'Yes' : 'No',
     }));
   };
-  
+
   const handleCompanySelection = (selected) => {
     if (selected.length > 0 && selected[0].customOption) {
       // Selected a new company
       const newCompanyName = selected[0].label;
       setSelectedCompany([newCompanyName]);
       setUpdatedToy({ ...updatedToy, company: newCompanyName });
+      setValidationErrors({ ...validationErrors, company: '' });
     } else {
       // Selected an existing company
       setSelectedCompany(selected);
       setUpdatedToy({ ...updatedToy, company: selected[0] || '' });
+      setValidationErrors({ ...validationErrors, company: '' });
     }
   };
 
@@ -164,10 +257,12 @@ const ThumbModal = ({
       const newBrandName = selected[0].label;
       setSelectedBrand([newBrandName]);
       setUpdatedToy({ ...updatedToy, brand: newBrandName });
+      setValidationErrors({ ...validationErrors, brand: '' });
     } else {
       // Selected an existing brand
       setSelectedBrand(selected);
       setUpdatedToy({ ...updatedToy, brand: selected[0] || '' });
+      setValidationErrors({ ...validationErrors, brand: '' });
     }
   };
 
@@ -247,10 +342,13 @@ const ThumbModal = ({
                       type="text"
                       value={updatedToy.name}
                       disabled={!editMode}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        // Clear the validation error for "name" when the user starts typing
+                        setValidationErrors({ ...validationErrors, name: '' });
                         setUpdatedToy({ ...updatedToy, name: e.target.value })
-                      }
+                      }}
                       fcw={!editMode ? '' : 'form-control-wrapper'}
+                      errors={validationErrors.name}
                     />
                   </div>
                 </div>
@@ -263,10 +361,13 @@ const ThumbModal = ({
                       type="text"
                       value={updatedToy.src}
                       disabled={!editMode}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        // Clear the validation error for "src" when the user starts typing
+                        setValidationErrors({ ...validationErrors, src: '' });
                         setUpdatedToy({ ...updatedToy, src: e.target.value })
-                      }
+                      }}
                       fcw={!editMode ? '' : 'form-control-wrapper'}
+                      errors={validationErrors.src}
                     />
                   </div>
                 </div>
@@ -283,6 +384,7 @@ const ThumbModal = ({
                       fcw={!editMode ? '' : 'form-control-wrapper'}
                       selectItem={selectedCompany}
                       handler={handleCompanySelection}
+                      errors={validationErrors.company}
                     />
                   </div>
                 </div>
@@ -299,6 +401,7 @@ const ThumbModal = ({
                       fcw={!editMode ? '' : 'form-control-wrapper'}
                       selectItem={selectedBrand}
                       handler={handleBrandSelection}
+                      errors={validationErrors.brand}
                     />
                   </div>
                 </div>
@@ -351,6 +454,7 @@ const ThumbModal = ({
                         setUpdatedToy({ ...updatedToy, year: e.target.value })
                       }
                       fcw={!editMode ? '' : 'form-control-wrapper'}
+                      errors={validationErrors.year}
                     />
                   </div>
                   <div className="col-md-8">
@@ -392,6 +496,7 @@ const ThumbModal = ({
                         setUpdatedToy({ ...updatedToy, price: e.target.value })
                       }
                       fcw={!editMode ? '' : 'form-control-wrapper'}
+                      errors={validationErrors.price}
                     />
                   </div>
                   <div className="col-md-3">
@@ -406,6 +511,7 @@ const ThumbModal = ({
                         setUpdatedToy({ ...updatedToy, quantity: e.target.value })
                       }
                       fcw={!editMode ? '' : 'form-control-wrapper'}
+                      errors={validationErrors.quantity}
                     />
                   </div>
                   <div className="col-md-6">
