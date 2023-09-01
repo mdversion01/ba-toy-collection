@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { endpoints } from '../../endpoints/Endpoints';  // import the endpoints
 import axios from 'axios';
+import validator from 'validator';
 import Form from 'react-bootstrap/Form';
 import { Modal, Button } from 'react-bootstrap';
 import TypeaheadSelectField from '../forms/TypeaheadSelectField';
@@ -197,6 +198,31 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     clearFormInputs();
   };
 
+  const validateYear = (year) => {
+    if (!validator.isNumeric(year)) {
+      return 'Year must be a number';
+    }
+    const currentYear = new Date().getFullYear();
+    if (parseInt(year, 10) > currentYear) {
+      return 'Year cannot be in the future';
+    }
+    return null; // No errors
+  };
+  
+  const validateQuantity = (quantity) => {
+    if (!validator.isNumeric(quantity)) {
+      return 'Quantity must be a number';
+    }
+    return null; // No errors
+  };
+  
+  const validatePrice = (price) => {
+    if (!validator.isNumeric(price) && !validator.isCurrency(price, { allow_negatives: false })) {
+      return 'Price must be a number or a valid currency amount';
+    }
+    return null; // No errors
+  };  
+
   const validateForm = () => {
     const validationErrors = {};
 
@@ -226,6 +252,29 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
     if (!year) {
       validationErrors.year = "Year is required";
+    } else {
+      const yearError = validateYear(year);
+      if (yearError) {
+        validationErrors.year = yearError;
+      }
+    }
+  
+    if (!quantity) {
+      validationErrors.quantity = "Quantity is required";
+    } else {
+      const quantityError = validateQuantity(quantity);
+      if (quantityError) {
+        validationErrors.quantity = quantityError;
+      }
+    }
+  
+    if (!price) {
+      validationErrors.price = "Price is required";
+    } else {
+      const priceError = validatePrice(price);
+      if (priceError) {
+        validationErrors.price = priceError;
+      }
     }
 
     return validationErrors;
@@ -317,6 +366,33 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const handleToyConditionChange = (e) => {
     setToyCondition(e.target.value);
+  };
+
+  const handleYearChange = (e) => {
+    setYear(e.target.value);
+    // Clear the error when the input value changes
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      year: null,
+    }));
+  };
+
+  const handlePriceChange = (e) => {  
+    setPrice(e.target.value);
+    // Clear the error when the input value changes
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      price: null,
+    }));
+  };
+
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+    // Clear the error when the input value changes
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      quantity: null,
+    }));
   };
 
   useEffect(() => {
@@ -444,7 +520,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   name={year}
                   type="text"
                   value={year}
-                  onChange={(e) => setYear(e.target.value)}
+                  onChange={handleYearChange}
                   placeholder="Enter a year"
                   fcw={'form-control-wrapper'}
                   errors={errors.year}
@@ -480,7 +556,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   name={price}
                   type="text"
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={handlePriceChange}
                   placeholder="Price/value"
                   fcw={'form-control-wrapper'}
                   errors={errors.price}
@@ -494,7 +570,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   name={quantity}
                   type="text"
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={handleQuantityChange}
                   placeholder="Enter quantity."
                   fcw={'form-control-wrapper'}
                   errors={errors.quantity}

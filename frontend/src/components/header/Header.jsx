@@ -32,7 +32,7 @@ const Header = ({ toys }) => {
               title="Add New Toy"
             />
             </Nav>
-            <div className="total-count">Toy Count: {totalToys}</div>
+            <div className="total-count">Toy Total: {totalToys}</div>
           </Container>
         </Navbar>
         

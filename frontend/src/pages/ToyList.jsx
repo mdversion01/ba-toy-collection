@@ -10,6 +10,10 @@ const ToysList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [toysPerPage] = useState(50); // Number of toys to show per page
 
+  // Add state for total price and quantity
+  const [allTotalQuantity, setAllTotalQuantity] = useState(0);
+  const [allTotalPrice, setAllTotalPrice] = useState(0);
+
   const [filterOptions, setFilterOptions] = useState({
     companies: [],
     brands: [],
@@ -51,6 +55,17 @@ const ToysList = () => {
           series,
           collections
         });
+
+        // Calculate total price and quantity for all toys
+        let totalQuantity = 0;
+        let totalPrice = 0;
+        sortedToys.forEach((toy) => {
+          totalQuantity += toy.quantity;
+          totalPrice += toy.price * toy.quantity;
+        });
+
+        setAllTotalQuantity(totalQuantity);
+        setAllTotalPrice(totalPrice);
       })
       .catch((error) => {
         console.error('Error fetching toys:', error);
@@ -90,14 +105,7 @@ const ToysList = () => {
     setCurrentPage(1);
   }, [selectedFilters]);
 
-   // Calculate the total price for the displayed toys
-   let allTotalQuantity = 0;
-   let allTotalPrice = 0;
-   toys.forEach((toy) => {
-     allTotalQuantity += toy.quantity;
-     allTotalPrice += toy.price * toy.quantity;
-   });
- 
+   // Calculate the total price for the currently displayed toys
    let totalQuantity = 0;
    let totalPrice = 0;
    currentToys.forEach((toy) => {
@@ -106,9 +114,7 @@ const ToysList = () => {
    });
 
   return (
-
     <>
-
       <div className="filter-section">
         <div className="row">
           <div className="col">
@@ -228,7 +234,7 @@ const ToysList = () => {
           </div>
           <div className="col">
             <button
-              className="btn btn-sm btn-secondary"
+              className="btn btn-primary btn-sm"
               onClick={() => {
                 // Clear all selected filters
                 setSelectedFilters({
@@ -250,8 +256,8 @@ const ToysList = () => {
         All Toys
 
         <div className="totals">
-          <div>Collection Price: ${allTotalPrice.toFixed(2)}</div>
-          <div className="current-page">Current Page Price: ${totalPrice.toFixed(2)}</div>
+          <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
+          <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
         </div>
       </div>
 
