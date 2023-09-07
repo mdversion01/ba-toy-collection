@@ -36,6 +36,15 @@
   justify-content: space-between;
 }
 
+.intro {
+  border: 1px solid rgb(125, 150, 249);
+  border-radius: 10px;
+  padding: 10px 20px 20px;
+  margin: 15px;
+  background-color: #f1f7fc;
+}
+
+
 .totals {
   display: flex;
   align-items: center;

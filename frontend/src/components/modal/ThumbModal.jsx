@@ -28,6 +28,18 @@ const ThumbModal = ({
   const [selectedCollection, setSelectedCollection] = useState([]);
   const [errors, setErrors] = useState({});
 
+  // Get the user's role from localStorage
+  const userRole = localStorage.getItem('userRole');
+
+  // Check if the userRole exists and is not null
+  if (userRole) {
+    // Do something with the user's role (e.g., store it in state)
+    console.log('User role:', userRole);
+  } else {
+    // Handle the case when the user's role is not found in localStorage
+    console.log('User role not found in localStorage');
+  }
+
   const [validationErrors, setValidationErrors] = useState({
     name: '',
     src: '',
@@ -74,7 +86,7 @@ const ThumbModal = ({
     if ((!updatedToy.newBrand && (!selectedBrand || selectedBrand.length === 0)) || !updatedToy.brand) {
       validationErrors.brand = "Brand is required";
     }
-  
+
     if ((!updatedToy.newCompany && (!selectedCompany || selectedCompany.length === 0)) || !updatedToy.company) {
       validationErrors.company = "Company is required";
     }
@@ -604,40 +616,43 @@ const ThumbModal = ({
           </div>
         </Modal.Body>
         <Modal.Footer>
-          {editMode && (
-            <>
-              <Button
-                variant="danger"
-                size="sm"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      'Are you sure you wish to delete this toy?'
-                    )
-                  )
-                    handleDeleteToy(toy.id);
-                }}
-              >
-                Delete Toy
-              </Button>
+        {userRole === 'admin' && (
+            editMode && (
+              <>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you wish to delete this toy?')) {
+                      handleDeleteToy(toy.id);
+                    }
+                  }}
+                >
+                  Delete Toy
+                </Button>
 
-              <Button
-                variant="primary"
-                type="submit"
-                size="sm"
-                onClick={handleUpdateToy}
-              >
-                Update Toy
-              </Button>
-            </>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  size="sm"
+                  onClick={handleUpdateToy}
+                >
+                  Update Toy
+                </Button>
+              </>
+            )
           )}
-          <Button
-            variant="success"
-            onClick={handleEditMode}
-            size="sm"
-          >
-            {editMode ? 'Cancel' : 'Edit'}
-          </Button>
+
+          {userRole === 'admin' && (
+            <Button
+              variant="success"
+              onClick={handleEditMode}
+              size="sm"
+            >
+              {editMode ? 'Cancel' : 'Edit'}
+            </Button>
+          )}
+
           <Button
             variant="secondary"
             size="sm"

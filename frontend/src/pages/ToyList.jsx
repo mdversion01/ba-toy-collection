@@ -14,6 +14,8 @@ const ToysList = () => {
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
   const [allTotalPrice, setAllTotalPrice] = useState(0);
 
+  const { user } = '';
+
   const [filterOptions, setFilterOptions] = useState({
     companies: [],
     brands: [],
@@ -254,11 +256,13 @@ const ToysList = () => {
 
       <div className="page-title">
         All Toys
-
-        <div className="totals">
-          <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
-          <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
-        </div>
+       
+        {user && user.role === 'admin' && (
+          <div className="totals">
+            <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
+            <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+          </div>
+        )}
       </div>
 
       <ToyListContent 

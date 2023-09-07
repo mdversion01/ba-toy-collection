@@ -30,6 +30,8 @@ const ToysByCompany = () => {
 
   const [filteredToys, setFilteredToys] = useState([]);
 
+  const { user } = '';
+
   useEffect(() => {
     axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
@@ -264,10 +266,13 @@ const ToysByCompany = () => {
       <div className="page-title">
         Toys by Company
 
-        <div className="totals">
-          <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
-          <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
-        </div>
+
+        {user && user.role === 'admin' && (
+          <div className="totals">
+            <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
+            <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+          </div>
+        )}
       </div>
 
       <ToysByCompanyContent
