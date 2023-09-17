@@ -3,7 +3,8 @@ import axios from 'axios';
 import { endpoints } from '../endpoints/Endpoints';
 
 function Registration() {
-  const [formData, setFormData] = useState({ username: '', password: '', role: 'user' });
+  const initialFormData = { username: '', password: '', role: 'user' };
+  const [formData, setFormData] = useState(initialFormData);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
@@ -18,10 +19,12 @@ function Registration() {
       // Make a POST request to your backend for registration
       const response = await axios.post(endpoints.USERS_REGISTER_URL, formData);
 
-
       // Check if registration was successful
       if (response.status === 201) {
         setSuccessMessage('Registration successful');
+
+        // Clear the form fields by resetting the formData state
+        setFormData(initialFormData);
       } else {
         setError('Registration failed');
       }

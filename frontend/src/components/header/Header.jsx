@@ -69,7 +69,7 @@ const Header = ({ toys }) => {
               {userRole ? (
                 <div>
                   <span className="user-name">{userRole}</span>
-                  <span className="logout" onClick={handleLogout}>Logout</span>
+                  <button className="logout" onClick={handleLogout}>Logout</button>
                 </div>
               ) : (
                 <Login />

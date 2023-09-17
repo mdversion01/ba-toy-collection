@@ -37,18 +37,40 @@ router.post(
       }
 
       const { username, password, role } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      const sql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
-      const values = [username, hashedPassword, role];
-
-      db.query(sql, values, (error, results) => {
-        if (error) {
-          console.error(error);
-          return res.status(500).json({ error: 'An error occurred while registering the user.' });
+      // Check if the username already exists in the database
+      const usernameCheckSql = 'SELECT * FROM users WHERE username = ?';
+      db.query(usernameCheckSql, [username], async (usernameCheckError, usernameCheckResults) => {
+        if (usernameCheckError) {
+          console.error(usernameCheckError);
+          return res.status(500).json({ error: 'An error occurred while checking the username.' });
         }
 
-        res.status(201).json({ message: 'User registered successfully' });
+        if (usernameCheckResults.length > 0) {
+          return res.status(400).json({ error: 'Username already exists' });
+        }
+
+        // Check if the password already exists in the database (if needed)
+        // Modify the query accordingly if you want to check for existing passwords
+
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10).catch((error) => {
+          console.error('Bcrypt error:', error);
+          // Handle the bcrypt error, e.g., return an error response
+          res.status(500).json({ error: 'An error occurred during password hashing' });
+        });
+
+        const insertSql = 'INSERT INTO users (username, password, role) VALUES (?, ?, ?)';
+        const values = [username, hashedPassword, role];
+
+        db.query(insertSql, values, (insertError, insertResults) => {
+          if (insertError) {
+            console.error(insertError);
+            return res.status(500).json({ error: 'An error occurred while registering the user.' });
+          }
+
+          res.status(201).json({ message: 'User registered successfully' });
+        });
       });
     } catch (error) {
       console.error(error);
