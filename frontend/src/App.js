@@ -6,6 +6,7 @@ import Header from './components/header/Header';
 import Home from './pages/Home';
 import ToyList from './pages/ToyList';
 import ToysByCompany from './pages/ToysByCompany';
+import Registration from './pages/Registration';
 import { endpoints } from "./endpoints/Endpoints";
 
 const App = () => {
@@ -31,9 +32,9 @@ const App = () => {
         <div className="main">
         <Routes> {/* Use Routes instead of Switch */}
           <Route exact path="/" element={<Home />} />
-
           <Route path="/toy-list" element={<ToyList />} /> {/* Use element prop instead of component */}
           <Route path="/toys-by-company" element={<ToysByCompany />} />
+          <Route path="/registration" element={<Registration />} />
           {/* Add more routes using Route */}
         </Routes>
         </div>

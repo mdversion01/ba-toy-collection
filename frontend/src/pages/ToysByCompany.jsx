@@ -30,6 +30,18 @@ const ToysByCompany = () => {
 
   const [filteredToys, setFilteredToys] = useState([]);
 
+  // Get the user's role from localStorage
+  const userRole = localStorage.getItem('userRole');
+
+  // Check if the userRole exists and is not null
+  if (userRole) {
+    // Do something with the user's role (e.g., store it in state)
+    console.log('User role:', userRole);
+  } else {
+    // Handle the case when the user's role is not found in localStorage
+    console.log('User role not found in localStorage');
+  }
+
   useEffect(() => {
     axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
@@ -121,6 +133,9 @@ const ToysByCompany = () => {
     totalQuantity += toy.quantity;
     totalPrice += toy.price * toy.quantity;
   });
+
+  // Gets the total number of toys
+  const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
 
   return (
     <>
@@ -264,9 +279,15 @@ const ToysByCompany = () => {
       <div className="page-title">
         Toys by Company
 
+
         <div className="totals">
-          <div>Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
-          <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+          <div className="total-count">Toy Total: {totalToys}</div>
+          {userRole === 'admin' && (
+            <>
+              <div className="current-page">Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
+              <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+            </>
+          )}
         </div>
       </div>
 
