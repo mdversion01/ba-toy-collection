@@ -28,4 +28,5 @@ const AddedToy = ({ date }) => {
   );
 }
 
+
 export default AddedToy;
