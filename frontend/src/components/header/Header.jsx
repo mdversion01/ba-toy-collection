@@ -51,7 +51,7 @@ const Header = ({ toys }) => {
           <BATCLogo />
         </div>
         <Navbar bg="dark" data-bs-theme="dark" expand="lg">
-          <Container>
+          <Container fluid>
             <Nav className="me-auto">
               <Link to="/" className="nav-link">Home</Link>
               <Link to="/toy-list" className="nav-link">All Toys</Link>
@@ -64,12 +64,11 @@ const Header = ({ toys }) => {
                 />
               )}
             </Nav>
-            <div className="total-count">Toy Total: {totalToys}</div>
             <div className="login">
               {userRole ? (
-                <div>
-                  <span className="user-name">{userRole}</span>
-                  <button className="logout" onClick={handleLogout}>Logout</button>
+                <div className="logout-wrapper">
+                  <div className="user-name me-3">{userRole}</div>
+                  <button className="btn btn-sm btn-light logout" onClick={handleLogout}>Logout</button>
                 </div>
               ) : (
                 <Login />

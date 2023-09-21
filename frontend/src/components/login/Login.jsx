@@ -38,27 +38,31 @@ function Login() {
   return (
     <div>
       <form className="login" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
+        <div className="me-2">
+          <label className="sr-only" htmlFor="username">Username</label>
           <input
             type="text"
             id="username"
             name="username"
             value={formData.username}
             onChange={handleChange}
+            className="form-control form-control-sm me-5"
+            placeholder="Username"
           />
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
+        <div className="me-2">
+          <label className="sr-only" htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
+            className="form-control form-control-sm"
+            placeholder="Password"
           />
         </div>
-        <button type="submit">Login</button>
+        <button className="btn btn-sm btn-light" type="submit">Login</button>
       </form>
       {error && <p>{error}</p>}
     </div>
