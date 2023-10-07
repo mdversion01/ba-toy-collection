@@ -2,7 +2,7 @@ import React from "react";
 
 const Home = () => {
   return (
-    <div class="intro">
+    <div className="intro">
 
       <p>Welcome to my BIG A$$ Toy Collection. I've been collecting toys off and on since the 90's, which stemmed from collecting comics (I have a pretty good sized comic collection, a little over 18,000 comics) which I don't collect anymore but I do still collect toys. My main focus these days, are old and new Star Wars toys. I can't tell you why. With comics, you read them and then bag and board them and then put them away. Toys, you buy and don't open them, maybe display them if you have the space or you store them away, like a squirrel, for a rainy day. I think now it's the nostalgia of having some of the things I had (or didn't have but wanted) when I was a kid and some of it's buying that one figure, that one toy, that's going to end up being really valuable (just like with comics), kind of like winning the lottery.</p>
 
