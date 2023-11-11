@@ -8,9 +8,9 @@ const formatInputData = (req, res, next) => {
   const { year, price, quantity } = req.body;
 
   // Convert year, price, and quantity to appropriate data types
-  req.body.year = parseInt(year);
-  req.body.price = parseFloat(price);
-  req.body.quantity = parseInt(quantity);
+  req.body.year = year ? parseInt(year) : null;
+  req.body.price = price ? parseFloat(price) : null;
+  req.body.quantity = quantity ? parseInt(quantity) : null;
 
   next();
 };
@@ -106,13 +106,19 @@ router.post('/', [
   ...sanitizationRules,
   ...validationRules,
 ], (req, res) => {
+
+  console.log('Received request body:', req.body); // Log the received request body
+
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array()); // Log validation errors
     return res.status(400).json(errors.array());
   }
 
   const { name, src, brand, series, collection, variant, reissue, company, year, price, toycondition, upc, dateadded, notes, quantity, completed } = req.body;
-
+  console.log('Parsed values:', { name, src, brand, series, collection, variant, reissue, company, year, price, toycondition, upc, dateadded, notes, quantity, completed }); // Log parsed values
+  
   // Perform additional custom validation if needed
   if (year > new Date().getFullYear()) {
     return res.status(400).json({ error: 'Year cannot be in the future' });

@@ -16,14 +16,14 @@ const Header = ({ toys }) => {
   // Get the user's role from localStorage
   const userRole = localStorage.getItem('userRole');
 
-  // Check if the userRole exists and is not null
-  if (userRole) {
-    // Do something with the user's role (e.g., store it in state)
-    console.log('User role:', userRole);
-  } else {
-    // Handle the case when the user's role is not found in localStorage
-    console.log('User role not found in localStorage');
-  }
+  // // Check if the userRole exists and is not null
+  // if (userRole) {
+  //   // Do something with the user's role (e.g., store it in state)
+  //   console.log('User role:', userRole);
+  // } else {
+  //   // Handle the case when the user's role is not found in localStorage
+  //   console.log('User role not found in localStorage');
+  // }
 
   // Function to handle user logout
   const handleLogout = () => {

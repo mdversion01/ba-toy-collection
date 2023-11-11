@@ -32,13 +32,13 @@ const ThumbModal = ({
   const userRole = localStorage.getItem('userRole');
 
   // Check if the userRole exists and is not null
-  if (userRole) {
-    // Do something with the user's role (e.g., store it in state)
-    console.log('User role:', userRole);
-  } else {
-    // Handle the case when the user's role is not found in localStorage
-    console.log('User role not found in localStorage');
-  }
+  // if (userRole) {
+  //   // Do something with the user's role (e.g., store it in state)
+  //   console.log('User role:', userRole);
+  // } else {
+  //   // Handle the case when the user's role is not found in localStorage
+  //   console.log('User role not found in localStorage');
+  // }
 
   const [validationErrors, setValidationErrors] = useState({
     name: '',
@@ -122,9 +122,18 @@ const ThumbModal = ({
   };
 
   // Add useEffect to set the updatedToy state with the original toy object when the modal is opened
+  // useEffect(() => {
+  //   setUpdatedToy(toy);
+  // }, [toy]);
   useEffect(() => {
-    setUpdatedToy(toy);
+    // Ensure the price field is a string
+    const updatedToyWithPriceAsString = {
+      ...toy,
+      price: toy.price.toString(),
+    };
+    setUpdatedToy(updatedToyWithPriceAsString);
   }, [toy]);
+  
 
   const fetchCompanies = async () => {
     try {
@@ -505,7 +514,7 @@ const ThumbModal = ({
                       value={updatedToy.price}
                       disabled={!editMode}
                       onChange={(e) =>
-                        setUpdatedToy({ ...updatedToy, price: e.target.value })
+                        setUpdatedToy({ ...updatedToy, price: String(e.target.value) })
                       }
                       fcw={!editMode ? '' : 'form-control-wrapper'}
                       errors={validationErrors.price}
