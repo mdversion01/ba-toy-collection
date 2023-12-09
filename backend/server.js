@@ -9,9 +9,15 @@ const authRoutes = require('./routes/authRoutes'); // Import the authentication 
 const registrationRoutes = require('./routes/registrationRoutes'); // Import the registration route module
 const toyRoutes = require('./routes/toysRoute'); // Import toyRoutes module
 
+const multer = require('multer');
+const path = require('path');
+
 const app = express();
 
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ 
+  origin: 'http://localhost:3000',
+  credentials: true,
+ }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -28,6 +34,34 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Multer configuration for handling file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Set the destination folder where uploaded images will be stored
+    cb(null, 'img'); // Create an 'uploads' directory in your project
+  },
+  filename: function (req, file, cb) {
+    // Set the file name for the uploaded image (you can customize this logic)
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// POST endpoint for image upload
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+  // 'image' should match the name attribute in the form data (e.g., formData.append('image', imageFile);)
+
+  // Retrieve the uploaded image file details
+  const imageUrl = req.file.path; // Assuming the path to the uploaded image is returned
+
+  // Process the image (save to database, perform other actions, etc.)
+  // Return the URL or any other necessary information about the uploaded image
+  res.json({ imageUrl: imageUrl });
+});
+
+app.use('/img', express.static(path.join(__dirname, 'img')));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

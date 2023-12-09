@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { endpoints } from '../../endpoints/Endpoints';
-import axios from 'axios';
-import moment from 'moment';
-import validator from 'validator';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import ImageWithDimensions from './ImageWidthDimensions'; // Fixed import statement
-import Form from 'react-bootstrap/Form';
-import FormField from '../forms/FormField';
-import TypeaheadEditSelectField from '../forms/TypeaheadEditSelectField';
+import React, { useState, useEffect } from "react";
+import { endpoints } from "../../endpoints/Endpoints";
+import axios from "axios";
+import moment from "moment";
+import validator from "validator";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import ImageWithDimensions from "./ImageWidthDimensions"; // Fixed import statement
+import Form from "react-bootstrap/Form";
+import FormField from "../forms/FormField";
+import TypeaheadEditSelectField from "../forms/TypeaheadEditSelectField";
 
-const ThumbModal = ({
-  toy,
-  show,
-  handleModalClose,
-  editMode,
-  setEditMode
-}) => {
+const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
   const [updatedToy, setUpdatedToy] = useState(toy);
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState([]);
@@ -29,7 +23,7 @@ const ThumbModal = ({
   const [errors, setErrors] = useState({});
 
   // Get the user's role from localStorage
-  const userRole = localStorage.getItem('userRole');
+  const userRole = localStorage.getItem("userRole");
 
   // Check if the userRole exists and is not null
   // if (userRole) {
@@ -40,34 +34,59 @@ const ThumbModal = ({
   //   console.log('User role not found in localStorage');
   // }
 
+  useEffect(() => {
+    async function fetchImage() {
+      try {
+        const response = await axios.get(endpoints.IMG_URL + toy.src, {
+          responseType: "arraybuffer", // Ensure response is treated as binary data
+        });
+        const base64 = btoa(
+          new Uint8Array(response.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ""
+          )
+        );
+        setImageUrl(`data:image/jpeg;base64,${base64}`);
+      } catch (error) {
+        console.error("Error fetching image:", error);
+        setImageUrl(""); // Reset image URL if there's an error
+      }
+    }
+
+    fetchImage();
+  }, [toy.src]);
+
   const [validationErrors, setValidationErrors] = useState({
-    name: '',
-    src: '',
-    company: '',
-    brand: '',
+    name: "",
+    src: "",
+    company: "",
+    brand: "",
   });
 
   const validateYear = (year) => {
     if (!validator.isNumeric(year.toString())) {
-      return 'Year must be a number';
+      return "Year must be a number";
     }
     const currentYear = new Date().getFullYear();
     if (parseInt(year, 10) > currentYear) {
-      return 'Year cannot be in the future';
+      return "Year cannot be in the future";
     }
     return null; // No errors
   };
 
   const validateQuantity = (quantity) => {
     if (!validator.isNumeric(quantity.toString())) {
-      return 'Quantity must be a number';
+      return "Quantity must be a number";
     }
     return null; // No errors
   };
 
   const validatePrice = (price) => {
-    if (!validator.isNumeric(price) && !validator.isCurrency(price, { allow_negatives: false })) {
-      return 'Price must be a number or a valid currency amount';
+    if (
+      !validator.isNumeric(price) &&
+      !validator.isCurrency(price, { allow_negatives: false })
+    ) {
+      return "Price must be a number or a valid currency amount";
     }
     return null; // No errors
   };
@@ -83,11 +102,19 @@ const ThumbModal = ({
       validationErrors.src = "Image is required";
     }
 
-    if ((!updatedToy.newBrand && (!selectedBrand || selectedBrand.length === 0)) || !updatedToy.brand) {
+    if (
+      (!updatedToy.newBrand &&
+        (!selectedBrand || selectedBrand.length === 0)) ||
+      !updatedToy.brand
+    ) {
       validationErrors.brand = "Brand is required";
     }
 
-    if ((!updatedToy.newCompany && (!selectedCompany || selectedCompany.length === 0)) || !updatedToy.company) {
+    if (
+      (!updatedToy.newCompany &&
+        (!selectedCompany || selectedCompany.length === 0)) ||
+      !updatedToy.company
+    ) {
       validationErrors.company = "Company is required";
     }
 
@@ -133,17 +160,18 @@ const ThumbModal = ({
     };
     setUpdatedToy(updatedToyWithPriceAsString);
   }, [toy]);
-  
 
   const fetchCompanies = async () => {
     try {
-      const response = await axios.get(endpoints.API_URL + 'toys');
+      const response = await axios.get(endpoints.API_URL + "toys");
       const data = response.data;
       const uniqueCompanies = [...new Set(data.map((item) => item.company))];
-      const sortedCompanies = uniqueCompanies.sort((a, b) => a.localeCompare(b));
+      const sortedCompanies = uniqueCompanies.sort((a, b) =>
+        a.localeCompare(b)
+      );
       setCompanies(sortedCompanies);
     } catch (error) {
-      console.error('Error fetching companies', error);
+      console.error("Error fetching companies", error);
     }
   };
 
@@ -153,13 +181,13 @@ const ThumbModal = ({
 
   const fetchBrands = async () => {
     try {
-      const response = await axios.get(endpoints.API_URL + 'toys');
+      const response = await axios.get(endpoints.API_URL + "toys");
       const data = response.data;
       const uniqueBrands = [...new Set(data.map((item) => item.brand))];
       const sortedBrands = uniqueBrands.sort((a, b) => a.localeCompare(b));
       setBrands(sortedBrands);
     } catch (error) {
-      console.error('Error fetching brands', error);
+      console.error("Error fetching brands", error);
     }
   };
 
@@ -169,7 +197,7 @@ const ThumbModal = ({
 
   const fetchSeriesMulti = async () => {
     try {
-      const response = await axios.get(endpoints.API_URL + 'toys');
+      const response = await axios.get(endpoints.API_URL + "toys");
       const data = response.data;
       const uniqueSeries = [...new Set(data.map((item) => item.series))];
       const sortedSeries = uniqueSeries.sort((a, b) => a.localeCompare(b));
@@ -178,7 +206,7 @@ const ThumbModal = ({
       });
       setSeriesMulti(seriesMulti);
     } catch (error) {
-      console.error('Error fetching series', error);
+      console.error("Error fetching series", error);
     }
   };
 
@@ -188,13 +216,17 @@ const ThumbModal = ({
 
   const fetchCollections = async () => {
     try {
-      const response = await axios.get(endpoints.API_URL + 'toys');
+      const response = await axios.get(endpoints.API_URL + "toys");
       const data = response.data;
-      const uniqueCollections = [...new Set(data.map((item) => item.collection))];
-      const sortedCollections = uniqueCollections.sort((a, b) => a.localeCompare(b));
+      const uniqueCollections = [
+        ...new Set(data.map((item) => item.collection)),
+      ];
+      const sortedCollections = uniqueCollections.sort((a, b) =>
+        a.localeCompare(b)
+      );
       setCollections(sortedCollections);
     } catch (error) {
-      console.error('Error fetching collections', error);
+      console.error("Error fetching collections", error);
     }
   };
 
@@ -210,6 +242,24 @@ const ThumbModal = ({
     handleModalClose();
   };
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    console.log("File:", file);
+
+    // Validate file type (allow only JPG, JPEG, and PNG)
+    if (file && /\.(jpe?g|png)$/i.test(file.name)) {
+      setImageFile(file);
+    } else {
+      // Handle invalid file type error
+      console.error('Invalid file type. Please upload a JPG, JPEG, or PNG file.');
+      // Clear the selected file
+      e.target.value = null;
+    }
+  };
+
   const handleUpdateToy = async () => {
     // Validate form inputs
     const validationErrors = validateForm();
@@ -220,14 +270,47 @@ const ThumbModal = ({
     }
 
     try {
-      console.log('Updating toy with data:', updatedToy);
-      const response = await axios.put(endpoints.API_URL + 'toys/' + updatedToy.id, updatedToy);
-      console.log('Response from server:', response.data); // Log the server response
-      console.log('Toy updated successfully');
+
+      let updatedToyWithNewImage = {...updatedToy};
+      
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        console.log("Form data:", formData);
+
+        try {
+          const imageUploadResponse = await axios.post(
+            endpoints.API_URL + "upload-image",
+            formData,
+            {
+              withCredentials: true,
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+          
+          const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
+          
+          updatedToyWithNewImage.src = imageUrl;
+
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          // Handle the error scenario if needed
+        }
+      }
+
+      // Perform the PUT request with the updatedToyWithNewImage data
+      const response = await axios.put(
+        endpoints.API_URL + "toys/" + updatedToy.id,
+        updatedToyWithNewImage
+      );
+      console.log("Response from server:", response.data); // Log the server response
+      console.log("Toy updated successfully");
       handleModalClose();
       setEditMode(false);
     } catch (error) {
-      console.error('Error updating toy', error);
+      console.error("Error updating toy", error);
     }
   };
 
@@ -238,7 +321,7 @@ const ThumbModal = ({
 
     setUpdatedToy((prevToy) => ({
       ...prevToy,
-      [name]: prevToy[name] === 'No' ? 'Yes' : 'No',
+      [name]: prevToy[name] === "No" ? "Yes" : "No",
     }));
   };
 
@@ -248,22 +331,22 @@ const ThumbModal = ({
       const newCompanyName = selected[0].label;
       setSelectedCompany([newCompanyName]);
       setUpdatedToy({ ...updatedToy, company: newCompanyName });
-      setValidationErrors({ ...validationErrors, company: '' });
+      setValidationErrors({ ...validationErrors, company: "" });
     } else {
       // Selected an existing company
       setSelectedCompany(selected);
-      setUpdatedToy({ ...updatedToy, company: selected[0] || '' });
-      setValidationErrors({ ...validationErrors, company: '' });
+      setUpdatedToy({ ...updatedToy, company: selected[0] || "" });
+      setValidationErrors({ ...validationErrors, company: "" });
     }
   };
 
   const handleDeleteToy = async (id) => {
     try {
-      await axios.delete(endpoints.API_URL + 'toys/' + id);
-      console.log('Toy deleted successfully');
+      await axios.delete(endpoints.API_URL + "toys/" + id);
+      console.log("Toy deleted successfully");
       handleModalClose();
     } catch (error) {
-      console.error('Error deleting toy', error);
+      console.error("Error deleting toy", error);
     }
   };
 
@@ -278,12 +361,12 @@ const ThumbModal = ({
       const newBrandName = selected[0].label;
       setSelectedBrand([newBrandName]);
       setUpdatedToy({ ...updatedToy, brand: newBrandName });
-      setValidationErrors({ ...validationErrors, brand: '' });
+      setValidationErrors({ ...validationErrors, brand: "" });
     } else {
       // Selected an existing brand
       setSelectedBrand(selected);
-      setUpdatedToy({ ...updatedToy, brand: selected[0] || '' });
-      setValidationErrors({ ...validationErrors, brand: '' });
+      setUpdatedToy({ ...updatedToy, brand: selected[0] || "" });
+      setValidationErrors({ ...validationErrors, brand: "" });
     }
   };
 
@@ -301,7 +384,7 @@ const ThumbModal = ({
     } else {
       // Selected an existing series
       setSelectedSeries(selected);
-      setUpdatedToy({ ...updatedToy, series: selected[0]?.label || '' });
+      setUpdatedToy({ ...updatedToy, series: selected[0]?.label || "" });
     }
   };
 
@@ -319,7 +402,7 @@ const ThumbModal = ({
     } else {
       // Selected an existing collection
       setSelectedCollection(selected);
-      setUpdatedToy({ ...updatedToy, collection: selected[0] || '' });
+      setUpdatedToy({ ...updatedToy, collection: selected[0] || "" });
     }
   };
 
@@ -328,7 +411,7 @@ const ThumbModal = ({
     setSelectedCollection([updatedToy.collection]);
   }, [updatedToy.collection]);
 
-  const date = moment(toy.dateadded).format('MMMM Do YYYY');
+  const date = moment(toy.dateadded).format("MMMM Do YYYY");
 
   return (
     <>
@@ -344,10 +427,10 @@ const ThumbModal = ({
         <Modal.Body>
           <div className="info__container">
             <div className="info__image-wrapper">
-              {toy.src && (
+              {imageUrl && (
                 <ImageWithDimensions
                   className="info__image"
-                  src={toy.src}
+                  src={imageUrl}
                   alt={toy.name}
                 />
               )}
@@ -356,40 +439,58 @@ const ThumbModal = ({
               <Form>
                 <div className="row g-0">
                   <div className="col">
-                    <FormField
-                      addClass={'title top'}
-                      label="Name"
-                      fmLabel="Name"
-                      type="text"
-                      value={updatedToy.name}
-                      disabled={!editMode}
-                      onChange={(e) => {
-                        // Clear the validation error for "name" when the user starts typing
-                        setValidationErrors({ ...validationErrors, name: '' });
-                        setUpdatedToy({ ...updatedToy, name: e.target.value })
-                      }}
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
-                      errors={validationErrors.name}
-                    />
+                    {!editMode ? (
+                      <>
+                        <div className="title top form-label">Name</div>
+                        <div className="form-control form-control-sm" disabled>
+                          {toy.name}
+                        </div>
+                      </>
+                    ) : (
+                      <FormField
+                        addClass={"title top"}
+                        label="Name"
+                        fmLabel="Name"
+                        type="text"
+                        value={updatedToy.name}
+                        disabled={!editMode}
+                        onChange={(e) => {
+                          // Clear the validation error for "name" when the user starts typing
+                          setValidationErrors({
+                            ...validationErrors,
+                            name: "",
+                          });
+                          setUpdatedToy({
+                            ...updatedToy,
+                            name: e.target.value,
+                          });
+                        }}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
+                        errors={validationErrors.name}
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="row g-0">
                   <div className="col">
-                    <FormField
-                      addClass={'title'}
-                      label="Image Path"
-                      fmLabel="Image Path"
-                      type="text"
-                      value={updatedToy.src}
-                      disabled={!editMode}
-                      onChange={(e) => {
-                        // Clear the validation error for "src" when the user starts typing
-                        setValidationErrors({ ...validationErrors, src: '' });
-                        setUpdatedToy({ ...updatedToy, src: e.target.value })
-                      }}
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
-                      errors={validationErrors.src}
-                    />
+                    
+                      <>
+                        <div className="title form-label">Current Image Path</div>
+                        <div className="form-control form-control-sm" disabled>
+                          {toy.src}
+                        </div>
+                      </>
+                      {!editMode ? '' : (
+                      <FormField
+                        addClass={"title"}
+                        label="Upload New Image"
+                        fmLabel="Upload Image"
+                        type="file"
+                        //accept="image/*"
+                        onChange={handleImageChange}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="row g-0">
@@ -402,7 +503,7 @@ const ThumbModal = ({
                       options={companies}
                       value={updatedToy.company}
                       placeholder="Type anything..."
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       selectItem={selectedCompany}
                       handler={handleCompanySelection}
                       errors={validationErrors.company}
@@ -419,7 +520,7 @@ const ThumbModal = ({
                       options={brands}
                       value={updatedToy.brand}
                       placeholder="Type anything..."
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       selectItem={selectedBrand}
                       handler={handleBrandSelection}
                       errors={validationErrors.brand}
@@ -437,7 +538,7 @@ const ThumbModal = ({
                         options={seriesMulti}
                         value={updatedToy.series}
                         placeholder="Type anything..."
-                        fcw={!editMode ? '' : 'form-control-wrapper'}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
                         selectItem={selectedSeries}
                         handler={handleSeriesSelection}
                       />
@@ -455,7 +556,7 @@ const ThumbModal = ({
                         options={collections}
                         value={updatedToy.collection}
                         placeholder="Type anything..."
-                        fcw={!editMode ? '' : 'form-control-wrapper'}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
                         selectItem={selectedCollection}
                         handler={handleCollectionSelection}
                       />
@@ -465,7 +566,7 @@ const ThumbModal = ({
                 <div className="row g-0">
                   <div className="col-md-4">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       label="Year"
                       fmLabel="Year"
                       type="text"
@@ -474,13 +575,13 @@ const ThumbModal = ({
                       onChange={(e) =>
                         setUpdatedToy({ ...updatedToy, year: e.target.value })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       errors={validationErrors.year}
                     />
                   </div>
                   <div className="col-md-8">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       type="select"
                       label="Condition"
                       fmLabel="Condition"
@@ -489,17 +590,17 @@ const ThumbModal = ({
                       onChange={(e) =>
                         setUpdatedToy({
                           ...updatedToy,
-                          toycondition: e.target.value
+                          toycondition: e.target.value,
                         })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       options={[
-                        { value: 'Mint', label: 'Mint' },
-                        { value: 'Near Mint', label: 'Near Mint' },
-                        { value: 'Very Good', label: 'Very Good' },
-                        { value: 'Good', label: 'Good' },
-                        { value: 'Fair', label: 'Fair' },
-                        { value: 'Poor', label: 'Poor' }
+                        { value: "Mint", label: "Mint" },
+                        { value: "Near Mint", label: "Near Mint" },
+                        { value: "Very Good", label: "Very Good" },
+                        { value: "Good", label: "Good" },
+                        { value: "Fair", label: "Fair" },
+                        { value: "Poor", label: "Poor" },
                       ]}
                     />
                   </div>
@@ -507,37 +608,43 @@ const ThumbModal = ({
                 <div className="row g-0">
                   <div className="col-md-3">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       label="Price/Value"
                       fmLabel="Price/Value"
                       type="text"
                       value={updatedToy.price}
                       disabled={!editMode}
                       onChange={(e) =>
-                        setUpdatedToy({ ...updatedToy, price: String(e.target.value) })
+                        setUpdatedToy({
+                          ...updatedToy,
+                          price: String(e.target.value),
+                        })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       errors={validationErrors.price}
                     />
                   </div>
                   <div className="col-md-3">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       label="Quantity"
                       fmLabel="Quantity"
                       type="text"
                       value={updatedToy.quantity}
                       disabled={!editMode}
                       onChange={(e) =>
-                        setUpdatedToy({ ...updatedToy, quantity: e.target.value })
+                        setUpdatedToy({
+                          ...updatedToy,
+                          quantity: e.target.value,
+                        })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                       errors={validationErrors.quantity}
                     />
                   </div>
                   <div className="col-md-6">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       label="UPC"
                       fmLabel="UPC"
                       type="text"
@@ -546,7 +653,7 @@ const ThumbModal = ({
                       onChange={(e) =>
                         setUpdatedToy({ ...updatedToy, upc: e.target.value })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                     />
                   </div>
                 </div>
@@ -555,15 +662,15 @@ const ThumbModal = ({
                     {/* Use the updatedToy object to display the initial state of the checkbox in default mode */}
                     {!editMode ? (
                       <div className="read-only">
-                        Variant: {updatedToy.variant === 'Yes' ? 'Yes' : 'No'}
+                        Variant: {updatedToy.variant === "Yes" ? "Yes" : "No"}
                       </div>
                     ) : (
                       <FormField
                         label="Variant"
                         type="checkbox"
-                        checked={updatedToy.variant === 'Yes'}
-                        onChange={() => handleCheckboxChange('variant')}
-                        fcw={!editMode ? '' : 'form-control-wrapper'}
+                        checked={updatedToy.variant === "Yes"}
+                        onChange={() => handleCheckboxChange("variant")}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
                       />
                     )}
                   </div>
@@ -571,15 +678,15 @@ const ThumbModal = ({
                     {/* Use the updatedToy object to display the initial state of the checkbox in default mode */}
                     {!editMode ? (
                       <div className="read-only">
-                        Reissue: {updatedToy.reissue === 'Yes' ? 'Yes' : 'No'}
+                        Reissue: {updatedToy.reissue === "Yes" ? "Yes" : "No"}
                       </div>
                     ) : (
                       <FormField
                         label="Reissue"
                         type="checkbox"
-                        checked={updatedToy.reissue === 'Yes'}
-                        onChange={() => handleCheckboxChange('reissue')}
-                        fcw={!editMode ? '' : 'form-control-wrapper'}
+                        checked={updatedToy.reissue === "Yes"}
+                        onChange={() => handleCheckboxChange("reissue")}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
                       />
                     )}
                   </div>
@@ -587,15 +694,16 @@ const ThumbModal = ({
                     {/* Use the updatedToy object to display the initial state of the checkbox in default mode */}
                     {!editMode ? (
                       <div className="read-only">
-                        Completed: {updatedToy.completed === 'Yes' ? 'Yes' : 'No'}
+                        Completed:{" "}
+                        {updatedToy.completed === "Yes" ? "Yes" : "No"}
                       </div>
                     ) : (
                       <FormField
                         label="Completed"
                         type="checkbox"
-                        checked={updatedToy.completed === 'Yes'}
-                        onChange={() => handleCheckboxChange('completed')}
-                        fcw={!editMode ? '' : 'form-control-wrapper'}
+                        checked={updatedToy.completed === "Yes"}
+                        onChange={() => handleCheckboxChange("completed")}
+                        fcw={!editMode ? "" : "form-control-wrapper"}
                       />
                     )}
                   </div>
@@ -603,7 +711,7 @@ const ThumbModal = ({
                 <div className="row g-0">
                   <div className="col-md-12">
                     <FormField
-                      addClass={'title'}
+                      addClass={"title"}
                       fmLabel="Notes"
                       type="textarea"
                       value={updatedToy.notes}
@@ -611,7 +719,7 @@ const ThumbModal = ({
                       onChange={(e) =>
                         setUpdatedToy({ ...updatedToy, notes: e.target.value })
                       }
-                      fcw={!editMode ? '' : 'form-control-wrapper'}
+                      fcw={!editMode ? "" : "form-control-wrapper"}
                     />
                   </div>
                 </div>
@@ -625,48 +733,40 @@ const ThumbModal = ({
           </div>
         </Modal.Body>
         <Modal.Footer>
-        {userRole === 'admin' && (
-            editMode && (
-              <>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => {
-                    if (window.confirm('Are you sure you wish to delete this toy?')) {
-                      handleDeleteToy(toy.id);
-                    }
-                  }}
-                >
-                  Delete Toy
-                </Button>
+          {userRole === "admin" && editMode && (
+            <>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => {
+                  if (
+                    window.confirm("Are you sure you wish to delete this toy?")
+                  ) {
+                    handleDeleteToy(toy.id);
+                  }
+                }}
+              >
+                Delete Toy
+              </Button>
 
-                <Button
-                  variant="primary"
-                  type="submit"
-                  size="sm"
-                  onClick={handleUpdateToy}
-                >
-                  Update Toy
-                </Button>
-              </>
-            )
+              <Button
+                variant="primary"
+                type="submit"
+                size="sm"
+                onClick={handleUpdateToy}
+              >
+                Update Toy
+              </Button>
+            </>
           )}
 
-          {userRole === 'admin' && (
-            <Button
-              variant="success"
-              onClick={handleEditMode}
-              size="sm"
-            >
-              {editMode ? 'Cancel' : 'Edit'}
+          {userRole === "admin" && (
+            <Button variant="success" onClick={handleEditMode} size="sm">
+              {editMode ? "Cancel" : "Edit"}
             </Button>
           )}
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleClose}
-          >
+          <Button variant="secondary" size="sm" onClick={handleClose}>
             Close
           </Button>
         </Modal.Footer>

@@ -1,47 +1,62 @@
-import React, { useState, useEffect } from 'react';
-import { endpoints } from '../../endpoints/Endpoints';  // import the endpoints
-import axios from 'axios';
-import validator from 'validator';
-import Form from 'react-bootstrap/Form';
-import { Modal, Button } from 'react-bootstrap';
-import TypeaheadSelectField from '../forms/TypeaheadSelectField';
-import FormField from '../forms/FormField';
+import React, { useState, useEffect } from "react";
+import { endpoints } from "../../endpoints/Endpoints"; // import the endpoints
+import axios from "axios";
+import validator from "validator";
+import Form from "react-bootstrap/Form";
+import { Modal, Button } from "react-bootstrap";
+import TypeaheadSelectField from "../forms/TypeaheadSelectField";
+import FormField from "../forms/FormField";
 
 const ModalAddContent = ({ onAddToy, buttonText }) => {
-
-  const [name, setName] = useState('');
-  const [src, setSrc] = useState('');
-  const [variant, setVariant] = useState('No');
-  const [reissue, setReissue] = useState('No');
-  const [completed, setCompleted] = useState('No');
-  const [year, setYear] = useState('');
-  const [price, setPrice] = useState('0');
-  const [toycondition, setToyCondition] = useState('');
-  const [upc, setUpc] = useState('123456789');
-  const [dateadded, setDateAdded] = useState('');
-  const [notes, setNotes] = useState('');
-  const [quantity, setQuantity] = useState('1');
+  const [name, setName] = useState("");
+  const [src, setSrc] = useState("");
+  const [variant, setVariant] = useState("No");
+  const [reissue, setReissue] = useState("No");
+  const [completed, setCompleted] = useState("No");
+  const [year, setYear] = useState("");
+  const [price, setPrice] = useState("0");
+  const [toycondition, setToyCondition] = useState("");
+  const [upc, setUpc] = useState("123456789");
+  const [dateadded, setDateAdded] = useState("");
+  const [notes, setNotes] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [errors, setErrors] = useState({});
 
   const [brands, setBrands] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState([]);
-  const [newBrand, setNewBrand] = useState('');
+  const [newBrand, setNewBrand] = useState("");
 
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState([]);
-  const [newCompany, setNewCompany] = useState('');
+  const [newCompany, setNewCompany] = useState("");
 
   const [seriesMulti, setSeriesMulti] = useState([]);
   const [selectedSeries, setSelectedSeries] = useState([]);
-  const [newSeries, setNewSeries] = useState('');
+  const [newSeries, setNewSeries] = useState("");
 
   const [collections, setCollections] = useState([]);
   const [selectedCollections, setSelectedCollections] = useState([]);
-  const [newCollections, setNewCollections] = useState('');
+  const [newCollections, setNewCollections] = useState("");
 
   const currentDate = new Date().toISOString();
 
   const [show, setShow] = useState(false);
+
+  const [imageFile, setImageFile] = useState(null);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    // Validate file type (allow only JPG, JPEG, and PNG)
+    if (file && /\.(jpe?g|png)$/i.test(file.name)) {
+      setImageFile(file);
+    } else {
+      // Handle invalid file type error
+      console.error('Invalid file type. Please upload a JPG, JPEG, or PNG file.');
+      // Clear the selected file
+      e.target.value = null;
+    }
+  };
 
   const handleClose = () => {
     setShow(false);
@@ -51,13 +66,13 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const fetchBrands = async () => {
     try {
-      const response = await fetch(endpoints.API_URL + 'toys'); // Replace with your API endpoint to fetch brands
+      const response = await fetch(endpoints.API_URL + "toys"); // Replace with your API endpoint to fetch brands
       const data = await response.json();
       const uniqueBrands = [...new Set(data.map((item) => item.brand))];
       const sortedBrands = uniqueBrands.sort((a, b) => a.localeCompare(b)); // Sort the brand names alphabetically
       setBrands(sortedBrands);
     } catch (error) {
-      console.error('Error fetching brands:', error);
+      console.error("Error fetching brands:", error);
     }
   };
 
@@ -72,20 +87,22 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       setNewBrand(selected[0].label);
     } else {
       // Selected an existing brand
-      setNewBrand('');
+      setNewBrand("");
       setSelectedBrand(selected);
     }
   };
 
   const fetchCompanies = async () => {
     try {
-      const response = await fetch(endpoints.API_URL + 'toys'); // Replace with your API endpoint to fetch companies
+      const response = await fetch(endpoints.API_URL + "toys"); // Replace with your API endpoint to fetch companies
       const data = await response.json();
       const uniqueCompanies = [...new Set(data.map((item) => item.company))];
-      const sortedCompanies = uniqueCompanies.sort((a, b) => a.localeCompare(b)); // Sort the company names alphabetically
+      const sortedCompanies = uniqueCompanies.sort((a, b) =>
+        a.localeCompare(b)
+      ); // Sort the company names alphabetically
       setCompanies(sortedCompanies);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     }
   };
 
@@ -100,20 +117,20 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       setNewCompany(selected[0].label);
     } else {
       // Selected an existing company
-      setNewCompany('');
+      setNewCompany("");
       setSelectedCompany(selected);
     }
   };
 
   const fetchSeries = async () => {
     try {
-      const response = await fetch(endpoints.API_URL + 'toys'); // Replace with your API endpoint to fetch series
+      const response = await fetch(endpoints.API_URL + "toys"); // Replace with your API endpoint to fetch series
       const data = await response.json();
       const uniqueSeries = [...new Set(data.map((item) => item.series))];
       const sortedSeries = uniqueSeries.sort((a, b) => a.localeCompare(b)); // Sort the series names alphabetically
       setSeriesMulti(sortedSeries);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      console.error("Error fetching companies:", error);
     }
   };
 
@@ -128,20 +145,24 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       setNewSeries(selected[0].label);
     } else {
       // Selected an existing series
-      setNewSeries('');
+      setNewSeries("");
       setSelectedSeries(selected);
     }
   };
 
   const fetchCollections = async () => {
     try {
-      const response = await fetch(endpoints.API_URL + 'toys'); // Replace with your API endpoint to fetch collections
+      const response = await fetch(endpoints.API_URL + "toys"); // Replace with your API endpoint to fetch collections
       const data = await response.json();
-      const uniqueCollections = [...new Set(data.map((item) => item.collection))];
-      const sortedCollections = uniqueCollections.sort((a, b) => a.localeCompare(b)); // Sort the collections names alphabetically
+      const uniqueCollections = [
+        ...new Set(data.map((item) => item.collection)),
+      ];
+      const sortedCollections = uniqueCollections.sort((a, b) =>
+        a.localeCompare(b)
+      ); // Sort the collections names alphabetically
       setCollections(sortedCollections);
     } catch (error) {
-      console.error('Error fetching collections:', error);
+      console.error("Error fetching collections:", error);
     }
   };
 
@@ -156,7 +177,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       setNewCollections(selected[0].label);
     } else {
       // Selected an existing collections
-      setNewCollections('');
+      setNewCollections("");
       setSelectedCollections(selected);
     }
   };
@@ -171,57 +192,87 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       return;
     }
 
-    // Create toyData object to send in the request body
-    const toyData = {
-      name,
-      src,
-      brand: selectedBrand[0] || newBrand,
-      series: selectedSeries[0] || newSeries,
-      collection: selectedCollections[0] || newCollections,
-      variant, // Use the state value directly
-      reissue, // Use the state value directly
-      company: selectedCompany[0] || newCompany,
-      year,
-      price,
-      toycondition: toycondition || 'Mint',
-      upc: upc || '123456789',
-      dateadded: currentDate,
-      notes,
-      quantity: quantity || '1',
-      completed // Use the state value directly
-    };
+    if (!imageFile) {
+      // Handle no image file selected error
+      console.error('Please select an image file.');
+      return;
+    }
 
-    // Simulating submitting the data to the database
-    submitToysDatabase(toyData);
+    // Create a new FormData object
+    const formData = new FormData();
+    formData.append("image", imageFile); // Append the image file to FormData
+    
+    // Upload image to the server
+    try {
+      const imageUploadResponse = await axios.post(
+        endpoints.API_URL + "upload-image",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    // Clear form inputs and reset the newCompany state variable
-    clearFormInputs();
+      const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
+
+      // Create toyData object to send in the request body
+      const toyData = {
+        name,
+        src: imageUrl || src,
+        brand: selectedBrand[0] || newBrand,
+        series: selectedSeries[0] || newSeries,
+        collection: selectedCollections[0] || newCollections,
+        variant, // Use the state value directly
+        reissue, // Use the state value directly
+        company: selectedCompany[0] || newCompany,
+        year,
+        price,
+        toycondition: toycondition || "Mint",
+        upc: upc || "123456789",
+        dateadded: currentDate,
+        notes,
+        quantity: quantity || "1",
+        completed, // Use the state value directly
+      };
+
+      // Simulating submitting the data to the database
+      submitToysDatabase(toyData);
+
+      // Clear form inputs and reset the newCompany state variable
+      clearFormInputs();
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const validateYear = (year) => {
     if (!validator.isNumeric(year)) {
-      return 'Year must be a number';
+      return "Year must be a number";
     }
     const currentYear = new Date().getFullYear();
     if (parseInt(year, 10) > currentYear) {
-      return 'Year cannot be in the future';
+      return "Year cannot be in the future";
     }
     return null; // No errors
   };
-  
+
   const validateQuantity = (quantity) => {
     if (!validator.isNumeric(quantity)) {
-      return 'Quantity must be a number';
+      return "Quantity must be a number";
     }
     return null; // No errors
   };
-  
+
   const validatePrice = (price) => {
-    if (!validator.isNumeric(price) && !validator.isCurrency(price, { allow_negatives: false })) {
-      return 'Price must be a number or a valid currency amount';
+    if (
+      !validator.isNumeric(price) &&
+      !validator.isCurrency(price, { allow_negatives: false })
+    ) {
+      return "Price must be a number or a valid currency amount";
     }
     return null; // No errors
-  };  
+  };
 
   const validateForm = () => {
     const validationErrors = {};
@@ -230,9 +281,13 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       validationErrors.name = "A name is required";
     }
 
-    if (!src) {
-      validationErrors.src = "Image is required";
+    if (!imageFile) {
+      validationErrors.imageFile = "An image is required";
     }
+
+    // if (!src) {
+    //   validationErrors.src = "Image is required";
+    // }
 
     if (!newBrand && selectedBrand.length === 0) {
       validationErrors.brand = "Brand is required";
@@ -258,7 +313,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
         validationErrors.year = yearError;
       }
     }
-  
+
     if (!quantity) {
       validationErrors.quantity = "Quantity is required";
     } else {
@@ -267,7 +322,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
         validationErrors.quantity = quantityError;
       }
     }
-  
+
     if (!price) {
       validationErrors.price = "Price is required";
     } else {
@@ -281,7 +336,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   };
 
   const submitToysDatabase = async (toyData) => {
-    const response = await axios.post(endpoints.API_URL + 'toys', toyData);
+    const response = await axios.post(endpoints.API_URL + "toys", toyData);
     const newToy = response.data;
     console.log(newToy);
   };
@@ -300,68 +355,77 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const clearFormInputs = () => {
     // Clear form inputs by resetting the state
-    setName('');
-    setSrc('');
+    setName("");
+    setImageFile("");
+    // setSrc("");
     setSelectedBrand([]);
-    setNewBrand('');
+    setNewBrand("");
     setSelectedSeries([]);
-    setNewSeries('');
+    setNewSeries("");
     setSelectedCollections([]);
-    setNewCollections('');
-    setVariant('No'); // Set variant to false
-    setReissue('No'); // Set reissue to false
+    setNewCollections("");
+    setVariant("No"); // Set variant to false
+    setReissue("No"); // Set reissue to false
     setSelectedCompany([]);
-    setNewCompany('');
-    setYear('');
-    setPrice('0');
-    setToyCondition('');
-    setUpc('123456789');
+    setNewCompany("");
+    setYear("");
+    setPrice("0");
+    setToyCondition("");
+    setUpc("123456789");
     setDateAdded(`${currentDate}`);
-    setNotes('');
-    setQuantity('1');
-    setCompleted('No'); // Set completed to false
+    setNotes("");
+    setQuantity("1");
+    setCompleted("No"); // Set completed to false
     setErrors({});
 
     fetchCompanies();
 
     // Manually clear the newBrand value in the Typeahead component
-    const typeaheadBrandInput = document.querySelector('#brandTypeahead .rbt-input-main');
+    const typeaheadBrandInput = document.querySelector(
+      "#brandTypeahead .rbt-input-main"
+    );
     if (typeaheadBrandInput) {
-      typeaheadBrandInput.value = '';
+      typeaheadBrandInput.value = "";
     }
 
     // Manually clear the newCompany value in the Typeahead component
-    const typeaheadCompanyInput = document.querySelector('#companyTypeahead .rbt-input-main');
+    const typeaheadCompanyInput = document.querySelector(
+      "#companyTypeahead .rbt-input-main"
+    );
     if (typeaheadCompanyInput) {
-      typeaheadCompanyInput.value = '';
+      typeaheadCompanyInput.value = "";
     }
 
     // Manually clear the newSeries value in the Typeahead component
-    const typeaheadSeriesInput = document.querySelector('#seriesTypeahead .rbt-input-main');
+    const typeaheadSeriesInput = document.querySelector(
+      "#seriesTypeahead .rbt-input-main"
+    );
     if (typeaheadSeriesInput) {
-      typeaheadSeriesInput.value = '';
+      typeaheadSeriesInput.value = "";
     }
 
     // Manually clear the newCollections value in the Typeahead component
-    const typeaheadCollectionsInput = document.querySelector('#collectionTypeahead .rbt-input-main');
+    const typeaheadCollectionsInput = document.querySelector(
+      "#collectionTypeahead .rbt-input-main"
+    );
     if (typeaheadCollectionsInput) {
-      typeaheadCollectionsInput.value = '';
+      typeaheadCollectionsInput.value = "";
     }
   };
 
   // Toggle the boolean value for variant
   const handleVariant = () => {
-    setVariant(prevState => (prevState === 'Yes' ? 'No' : 'Yes'));
+    setVariant((prevState) => (prevState === "Yes" ? "No" : "Yes"));
   };
 
   // Toggle the boolean value for reissue
   const handleReissue = () => {
-    setReissue(prevState => (prevState === 'Yes' ? 'No' : 'Yes'));
+    setReissue((prevState) => (prevState === "Yes" ? "No" : "Yes"));
   };
 
   // Toggle the boolean value for completed
   const handleCompleted = () => {
-    setCompleted(prevState => (prevState === 'Yes' ? 'No' : 'Yes'));
+    setCompleted((prevState) => (prevState === "Yes" ? "No" : "Yes"));
   };
 
   const handleToyConditionChange = (e) => {
@@ -377,7 +441,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     }));
   };
 
-  const handlePriceChange = (e) => {  
+  const handlePriceChange = (e) => {
     setPrice(e.target.value);
     // Clear the error when the input value changes
     setErrors((prevErrors) => ({
@@ -406,7 +470,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
         {buttonText}
       </Button>
 
-
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>Add Toy</Modal.Title>
@@ -416,7 +479,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             <div className="row g-0">
               <div className="col-md-12">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   label="Name"
                   fmLabel="Name"
                   name={name}
@@ -424,7 +487,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter name of toy"
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.name}
                 />
               </div>
@@ -433,7 +496,21 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             <div className="row g-0">
               <div className="col-md-12">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
+                  label="Image Upload"
+                  fmLabel="Image Upload"
+                  type="file"
+                  onChange={handleImageChange}
+                  fcw={"form-control-wrapper"}
+                  errors={errors.imageFile}
+                />
+              </div>
+            </div>
+
+            {/* <div className="row g-0">
+              <div className="col-md-12">
+                <FormField
+                  addClass={"title"}
                   label="Image Path"
                   fmLabel="Image Path"
                   name={src}
@@ -441,11 +518,11 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={src}
                   onChange={(e) => setSrc(e.target.value)}
                   placeholder="Enter image path"
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.src}
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="row g-0">
               <div className="col-md-12">
@@ -514,7 +591,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             <div className="row g-0">
               <div className="col-md-4">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   label="Year"
                   fmLabel="Year"
                   name={year}
@@ -522,26 +599,26 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={year}
                   onChange={handleYearChange}
                   placeholder="Enter a year"
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.year}
                 />
               </div>
               <div className="col-md-8">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   type="select"
                   label="Condition"
                   fmLabel="Condition"
                   value={toycondition}
                   onChange={handleToyConditionChange}
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   options={[
-                    { value: 'Mint', label: 'Mint' },
-                    { value: 'Near Mint', label: 'Near Mint' },
-                    { value: 'Very Good', label: 'Very Good' },
-                    { value: 'Good', label: 'Good' },
-                    { value: 'Fair', label: 'Fair' },
-                    { value: 'Poor', label: 'Poor' }
+                    { value: "Mint", label: "Mint" },
+                    { value: "Near Mint", label: "Near Mint" },
+                    { value: "Very Good", label: "Very Good" },
+                    { value: "Good", label: "Good" },
+                    { value: "Fair", label: "Fair" },
+                    { value: "Poor", label: "Poor" },
                   ]}
                 />
               </div>
@@ -550,7 +627,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             <div className="row g-0">
               <div className="col-md-3">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   label="Price/Value"
                   fmLabel="Price/Value"
                   name={price}
@@ -558,13 +635,13 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={price}
                   onChange={handlePriceChange}
                   placeholder="Price/value"
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.price}
                 />
               </div>
               <div className="col-md-3">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   label="Quantity"
                   fmLabel="Quantity"
                   name={quantity}
@@ -572,13 +649,13 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={quantity}
                   onChange={handleQuantityChange}
                   placeholder="Enter quantity."
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.quantity}
                 />
               </div>
               <div className="col-md-6">
                 <FormField
-                  addClass={'title'}
+                  addClass={"title"}
                   label="UPC"
                   fmLabel="UPC"
                   name={upc}
@@ -586,65 +663,77 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                   value={upc}
                   onChange={(e) => setUpc(e.target.value)}
                   placeholder="Enter UPC."
-                  fcw={'form-control-wrapper'}
+                  fcw={"form-control-wrapper"}
                   errors={errors.upc}
                 />
               </div>
             </div>
 
             <div className="row g-0">
-        <div className="col-md-4">
-          <FormField
-            label="Variant"
-            type="checkbox"
-            checked={variant === 'Yes'} // Use strict comparison for boolean state
-            onChange={handleVariant}
-            fcw="form-control-wrapper"
-          />
-        </div>
-        <div className="col-md-4">
-          <FormField
-            label="Reissue"
-            type="checkbox"
-            checked={reissue === 'Yes'} // Use strict comparison for boolean state
-            onChange={handleReissue}
-            fcw="form-control-wrapper"
-          />
-        </div>
-        <div className="col-md-4">
-          <FormField
-            label="Completed"
-            type="checkbox"
-            checked={completed === 'Yes'} // Use strict comparison for boolean state
-            onChange={handleCompleted}
-            fcw="form-control-wrapper"
-          />
-        </div>
-      </div>
-
-            <div className="row g-0">
-              <div className="col-md-12">
+              <div className="col-md-4">
                 <FormField
-                  addClass={'title'}
-                  fmLabel="Notes"
-                  type="textarea"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  fcw={'form-control-wrapper'}
+                  label="Variant"
+                  type="checkbox"
+                  checked={variant === "Yes"} // Use strict comparison for boolean state
+                  onChange={handleVariant}
+                  fcw="form-control-wrapper"
+                />
+              </div>
+              <div className="col-md-4">
+                <FormField
+                  label="Reissue"
+                  type="checkbox"
+                  checked={reissue === "Yes"} // Use strict comparison for boolean state
+                  onChange={handleReissue}
+                  fcw="form-control-wrapper"
+                />
+              </div>
+              <div className="col-md-4">
+                <FormField
+                  label="Completed"
+                  type="checkbox"
+                  checked={completed === "Yes"} // Use strict comparison for boolean state
+                  onChange={handleCompleted}
+                  fcw="form-control-wrapper"
                 />
               </div>
             </div>
 
-            <Form.Control type="hidden" value={currentDate} onChange={(e) => setDateAdded(e.target.value)} />
+            <div className="row g-0">
+              <div className="col-md-12">
+                <FormField
+                  addClass={"title"}
+                  fmLabel="Notes"
+                  type="textarea"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  fcw={"form-control-wrapper"}
+                />
+              </div>
+            </div>
 
+            <Form.Control
+              type="hidden"
+              value={currentDate}
+              onChange={(e) => setDateAdded(e.target.value)}
+            />
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" type="submit" size="sm" onClick={handleSubmit}>
+          <Button
+            variant="primary"
+            type="submit"
+            size="sm"
+            onClick={handleSubmit}
+          >
             Add Toy
           </Button>
 
-          <Button variant="outline-secondary" size="sm" onClick={clearFormInputs}>
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            onClick={clearFormInputs}
+          >
             Clear
           </Button>
 
@@ -653,9 +742,8 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
           </Button>
         </Modal.Footer>
       </Modal>
-
     </>
   );
-}
+};
 
 export default ModalAddContent;

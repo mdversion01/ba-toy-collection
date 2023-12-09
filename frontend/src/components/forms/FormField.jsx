@@ -61,6 +61,17 @@ const FormField = ({ label, fmLabel, type, value, checked, options, onChange, di
             label={label}
           />
         );
+      case 'file':
+        return (
+          <Form.Control 
+            label={label}
+            type="file" 
+            onChange={onChange}
+            size='sm'
+            disabled={disabled}
+            />
+        );    
+      
       // Add more cases for other types if needed
 
       default:
