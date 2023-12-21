@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { endpoints } from '../endpoints/Endpoints';
+import React, { useState } from "react";
+import axios from "axios";
+import { endpoints } from "../endpoints/Endpoints";
 
 function Registration() {
-  const initialFormData = { username: '', password: '', role: 'user' };
+  const initialFormData = { username: "", password: "", role: "user" };
   const [formData, setFormData] = useState(initialFormData);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,15 +21,16 @@ function Registration() {
 
       // Check if registration was successful
       if (response.status === 201) {
-        setSuccessMessage('Registration successful');
+        setSuccessMessage("Registration successful");
 
         // Clear the form fields by resetting the formData state
         setFormData(initialFormData);
       } else {
-        setError('Registration failed');
+        setError("Registration failed");
       }
     } catch (error) {
-      setError('An error occurred during registration');
+      console.error("Registration Error:", error);
+      setError("An error occurred during registration");
     }
   };
 
@@ -41,7 +42,7 @@ function Registration() {
           <label htmlFor="username">Username</label>
           <input
             type="text"
-            id="username"
+            id="usernameInput" // Unique ID for username input
             name="username"
             value={formData.username}
             onChange={handleChange}
@@ -51,17 +52,21 @@ function Registration() {
           <label htmlFor="password">Password</label>
           <input
             type="password"
-            id="password"
+            id="passwordInput" // Unique ID for password input
             name="password"
             value={formData.password}
             onChange={handleChange}
           />
         </div>
-        <div>Password must be at least 6 characters long. Password must contain at least one letter, one number, and one of these special characters, @$!%*#?&</div>
+        <div>
+          Password must be at least 6 characters long. Password must contain at
+          least one letter, one number, and one of these special characters,
+          @$!%*#?&
+        </div>
         <div>
           <label htmlFor="role">Role</label>
           <select
-            id="role"
+            id="roleSelect" // Unique ID for role select
             name="role"
             value={formData.role}
             onChange={handleChange}
