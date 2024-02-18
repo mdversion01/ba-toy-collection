@@ -285,10 +285,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       validationErrors.imageFile = "An image is required";
     }
 
-    // if (!src) {
-    //   validationErrors.src = "Image is required";
-    // }
-
     if (!newBrand && selectedBrand.length === 0) {
       validationErrors.brand = "Brand is required";
     }
@@ -297,15 +293,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       validationErrors.company = "Company is required";
     }
 
-    // if (!newSeries && selectedSeries.length === 0) {
-    //   validationErrors.series = "A Series is required";
-    // }
-
-    // if (!newCollections && selectedCollections.length === 0) {
-    //   validationErrors.collections = "A Collection is required";
-    // }
-
-    if (!year) {
+   if (!year) {
       validationErrors.year = "Year is required";
     } else {
       const yearError = validateYear(year);
@@ -341,22 +329,16 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     console.log(newToy);
   };
 
-  // const submitToysDatabase = async (toyData) => {
-  //   try {
-  //     const response = await axios.post(endpoints.API_URL + 'toys', toyData);
-  //     const newToy = response.data;
-  //     console.log(newToy);
-  //     onAddToy(newToy); // Call the onAddToy function with the newToy
-  //     handleClose(); // Close the modal
-  //   } catch (error) {
-  //     console.error('Error submitting toy:', error);
-  //   }
-  // };
-
   const clearFormInputs = () => {
+    // Clear form inputs by resetting the form
+  const form = document.getElementById("newToyForm"); // replace with the actual form ID
+  if (form) {
+    form.reset();
+  }
+
     // Clear form inputs by resetting the state
     setName("");
-    setImageFile("");
+    setImageFile(null);
     // setSrc("");
     setSelectedBrand([]);
     setNewBrand("");
@@ -379,6 +361,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     setErrors({});
 
     fetchCompanies();
+    
 
     // Manually clear the newBrand value in the Typeahead component
     const typeaheadBrandInput = document.querySelector(
@@ -475,7 +458,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
           <Modal.Title>Add Toy</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form id="newToyForm">
             <div className="row g-0">
               <div className="col-md-12">
                 <FormField
