@@ -4,6 +4,9 @@ const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 
+const http = require('http'); // Import the 'http' module for use with socket.io
+const socketIo = require('socket.io'); // Import socket.io
+
 const passport = require('./config/passport-config'); // Import your Passport configuration file
 const authRoutes = require('./routes/authRoutes'); // Import the authentication route module
 const registrationRoutes = require('./routes/registrationRoutes'); // Import the registration route module
@@ -13,6 +16,14 @@ const multer = require('multer');
 const path = require('path');
 
 const app = express();
+const server = http.createServer(app); // Create an HTTP server using Express
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+  },
+}); // Create a socket.io instance attached to the server
 
 app.use(cors({ 
   origin: 'http://localhost:3000',
@@ -61,6 +72,26 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
   res.json({ imageUrl: imageUrl });
 });
 
+// WebSocket connection
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Example: Handle 'addItem' event from the client
+  socket.on('addItem', () => {
+    // Add the item to the database (your logic here)
+
+    // Notify connected clients about the new item
+    // io.emit('addItem', { message: 'A new item has been added' });
+
+    // Notify connected clients about the new item with a different event
+    io.emit('newItemAdded', { message: 'A new item has been added' });
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
 app.use('/img', express.static(path.join(__dirname, 'img')));
 
 app.use((err, req, res, next) => {
@@ -79,6 +110,10 @@ app.use('/api/toys', toyRoutes);
 
 const PORT = 3002;
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log(`Server listening on port ${PORT}`);
+// });
+
+server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
