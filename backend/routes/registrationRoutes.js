@@ -26,10 +26,7 @@ const registrationValidationRules = () => {
   ];
 };
 
-router.post(
-  '/',
-  registrationValidationRules(),
-  async (req, res) => {
+  router.post('/', registrationValidationRules(), async (req, res) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
