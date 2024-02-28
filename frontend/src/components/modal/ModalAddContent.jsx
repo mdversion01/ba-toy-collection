@@ -4,6 +4,7 @@ import axios from "axios";
 import validator from "validator";
 import Form from "react-bootstrap/Form";
 import { Modal, Button } from "react-bootstrap";
+import io from "socket.io-client"; // Import socket.io-client
 import TypeaheadSelectField from "../forms/TypeaheadSelectField";
 import FormField from "../forms/FormField";
 
@@ -44,6 +45,8 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const [imageFile, setImageFile] = useState(null);
 
+  const [socket, setSocket] = useState(null);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
@@ -52,17 +55,49 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       setImageFile(file);
     } else {
       // Handle invalid file type error
-      console.error('Invalid file type. Please upload a JPG, JPEG, or PNG file.');
+      console.error(
+        "Invalid file type. Please upload a JPG, JPEG, or PNG file."
+      );
       // Clear the selected file
       e.target.value = null;
     }
   };
+
+  useEffect(() => {
+    // Connect to the server's WebSocket when the component mounts
+    const newSocket = io("http://localhost:3002"); // Replace with your server's URL
+    setSocket(newSocket);
+
+    // Cleanup the socket connection when the component unmounts
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []);
 
   const handleClose = () => {
     setShow(false);
     clearFormInputs();
   };
   const handleShow = () => setShow(true);
+
+
+  useEffect(() => {
+    // Listen for 'newItemAdded' events from the server
+    if (socket) {
+      socket.on("newItemAdded", (data) => {
+        // Handle the event data or trigger a refresh of your displayed items
+        console.log(data.message);
+        // You can call the 'onAddToy' function or update the state as needed
+      });
+    }
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      if (socket) {
+        socket.off("newItemAdded");
+      }
+    };
+  }, [socket]);
 
   const fetchBrands = async () => {
     try {
@@ -194,14 +229,14 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
     if (!imageFile) {
       // Handle no image file selected error
-      console.error('Please select an image file.');
+      console.error("Please select an image file.");
       return;
     }
 
     // Create a new FormData object
     const formData = new FormData();
     formData.append("image", imageFile); // Append the image file to FormData
-    
+
     // Upload image to the server
     try {
       const imageUploadResponse = await axios.post(
@@ -238,6 +273,9 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
       // Simulating submitting the data to the database
       submitToysDatabase(toyData);
+
+      // Notify connected clients about the new item
+      socket.emit("addItem");
 
       // Clear form inputs and reset the newCompany state variable
       clearFormInputs();
@@ -293,7 +331,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       validationErrors.company = "Company is required";
     }
 
-   if (!year) {
+    if (!year) {
       validationErrors.year = "Year is required";
     } else {
       const yearError = validateYear(year);
@@ -331,10 +369,10 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
 
   const clearFormInputs = () => {
     // Clear form inputs by resetting the form
-  const form = document.getElementById("newToyForm"); // replace with the actual form ID
-  if (form) {
-    form.reset();
-  }
+    const form = document.getElementById("newToyForm"); // replace with the actual form ID
+    if (form) {
+      form.reset();
+    }
 
     // Clear form inputs by resetting the state
     setName("");
@@ -361,7 +399,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     setErrors({});
 
     fetchCompanies();
-    
 
     // Manually clear the newBrand value in the Typeahead component
     const typeaheadBrandInput = document.querySelector(
@@ -441,6 +478,24 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       quantity: null,
     }));
   };
+
+  useEffect(() => {
+    // Listen for 'newItemAdded' events from the server
+    if (socket) {
+      socket.on("newItemAdded", (data) => {
+        // Handle the event data or trigger a refresh of your displayed items
+        console.log(data.message);
+        // You can call the 'onAddToy' function or update the state as needed
+      });
+    }
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      if (socket) {
+        socket.off("newItemAdded");
+      }
+    };
+  }, [socket]);
 
   useEffect(() => {
     const date = new Date();
@@ -707,7 +762,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             variant="primary"
             type="submit"
             size="sm"
-            onClick={handleSubmit}
+            onClick={(e) => handleSubmit(e)}
           >
             Add Toy
           </Button>
