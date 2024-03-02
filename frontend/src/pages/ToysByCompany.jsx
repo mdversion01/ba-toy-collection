@@ -34,103 +34,6 @@ const ToysByCompany = () => {
   // Get the user's role from localStorage
   const userRole = localStorage.getItem('userRole');
 
-  // function useForceUpdate() {
-  //   const [, setValue] = useState(0); // Destructuring assignment to get the state value
-  //   return () => setValue(value => value + 1); // Update the state to force a re-render
-  // }
-
-  // const forceUpdate = useForceUpdate(); // Define the useForceUpdate hook
-
-
-  // useEffect(() => {
-  //   console.log('Entering TBC useEffect');
-
-  //   // Establish a Socket.IO connection
-  //   const socket = socketIOClient('http://localhost:3002');
-  
-  //   // Fetch toys from the server
-  //   axios.get(endpoints.API_URL + 'toys')
-  //     .then((response) => {
-  //       const sortedToys = response.data.sort((a, b) => {
-  //         const companyComparison = a.company.localeCompare(b.company);
-  //         if (companyComparison !== 0) return companyComparison;
-
-  //         const brandComparison = a.brand.localeCompare(b.brand);
-  //         if (brandComparison !== 0) return brandComparison;
-
-  //         const seriesComparison = a.series.localeCompare(b.series);
-  //         if (seriesComparison !== 0) return seriesComparison;
-
-  //         return a.collection.localeCompare(b.collection);
-  //       });
-  //       setToys(sortedToys);
-  
-  //       // Extract filter options, calculate totals, etc.
-  //       const companies = [...new Set(sortedToys.map(toy => toy.company))];
-  //       const brands = [...new Set(sortedToys.map(toy => toy.brand))];
-  //       const series = [...new Set(sortedToys.map(toy => toy.series))];
-  //       const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-  
-  //       companies.sort();
-  //       brands.sort();
-  //       series.sort();
-  //       collections.sort();
-  
-  //       setFilterOptions({
-  //         companies,
-  //         brands,
-  //         series,
-  //         collections
-  //       });
-  
-  //       let totalQuantity = 0;
-  //       let totalPrice = 0;
-  //       sortedToys.forEach((toy) => {
-  //         totalQuantity += toy.quantity;
-  //         totalPrice += toy.price * toy.quantity;
-  //       });
-  
-  //       setAllTotalQuantity(totalQuantity);
-  //       setAllTotalPrice(totalPrice);
-  
-  //       // Update the filtered toys based on selected filters
-  //       const filtered = sortedToys.filter(toy => (
-  //         (!selectedFilters.company || toy.company === selectedFilters.company) &&
-  //         (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-  //         (!selectedFilters.series || toy.series === selectedFilters.series) &&
-  //         (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
-  //         (!selectedFilters.completed || toy.completed === selectedFilters.completed)
-  //       ));
-  
-  //       setFilteredToys(filtered);
-
-  //       forceUpdate();
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching toys:', error);
-  //     });
-  
-  //   // Listen for the 'addItem' event
-  //   socket.on('addItem', (data) => {
-  //     console.log('Received addItem event:', data);
-
-  //     // Fetch toys from the server when a new item is added
-  //     axios.get(endpoints.API_URL + 'toys')
-  //       .then((response) => {
-  //         // Similar logic as above to update toys, filter options, totals, etc.
-  //       })
-  //       .catch((error) => {
-  //         console.error('Error fetching toys:', error);
-  //       });
-  //   });
-  
-  //   // Cleanup the socket connection when the component unmounts
-  //   return () => {
-  //     console.log('Cleaning up socket connection');
-  //     socket.disconnect();
-  //   };
-  // }, [selectedFilters]); // Add selectedFilters as a dependency to update on filter changes
-
   useEffect(() => {
     console.log('Fetching toys from the server');
     // Establish a Socket.IO connection
@@ -196,7 +99,6 @@ const ToysByCompany = () => {
   
         setFilteredToys(filtered);
 
-        // forceUpdate();
       })
       .catch((error) => {
         console.error('Error fetching toys:', error);
@@ -226,8 +128,6 @@ const ToysByCompany = () => {
     };
   }, [selectedFilters]); // Add selectedFilters as a dependency to update on filter changes
   
-  
-
   // Calculate the range of pages to display
   const pageRange = 8;
   const totalPages = Math.ceil(filteredToys.length / toysPerPage);
