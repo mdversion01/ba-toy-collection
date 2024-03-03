@@ -62,7 +62,7 @@
   margin: 0;
   font-weight: bold;
   font-size: 18px;
-  background-color: slategray;
+  background-color: #4E5865;
   color: #fff;
 }
 
@@ -128,18 +128,18 @@
     &__collection {
       // border-bottom-left-radius: 8px;
       // border-top-left-radius: 8px;
-      background-color: rgb(255, 72, 0);
+      background-color: #FF6529;
       display: flex;
       align-items: center;
       padding: 10px 10px 10px 30px;
-      color: #fff;
+      color: #000;
       position: relative;
 
       &::after {
         content: "";
         position: absolute;
         border-bottom: 20px solid transparent;
-        border-left: 20px solid rgb(255, 72, 0);
+        border-left: 20px solid #FF6529;
         border-top: 20px solid transparent;
         height: 0px;
         width: 0px;

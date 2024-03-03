@@ -109,7 +109,6 @@ router.post('/', [
 
   console.log('Received request body:', req.body); // Log the received request body
 
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation errors:', errors.array()); // Log validation errors
@@ -139,6 +138,12 @@ router.post('/', [
   });
 });
 
+// // Middleware to add 'io' to the 'res' object
+// const socketIoMiddleware = (io) => (req, res, next) => {
+//   res.io = io;
+//   next();
+// };
+
 // Route to update a toy
 router.put('/:id', [
   formatInputData,
@@ -154,44 +159,63 @@ router.put('/:id', [
     return;
   }
 
-  const fieldsToUpdate = [
-    'name', 'src', 'brand', 'company', 'series', 'collection',
-    'variant', 'reissue', 'year', 'price', 'toycondition',
-    'upc', 'notes', 'quantity', 'completed'
-  ];
-  
-  const updates = [];
-  const values = [];
-  
-  fieldsToUpdate.forEach(field => {
-    if (req.body[field] !== undefined) {
-      updates.push(`${field} = ?`);
-      values.push(req.body[field]);
-    }
-  });
-
-  if (updates.length === 0) {
-    res.status(400).json({ error: 'No fields to update' });
-    return;
-  }
-
-  values.push(id); // Add the ID as the last value for the WHERE clause
-
-  const query = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
-
-  // Execute the query with values
-  db.query(query, values, (err, result) => {
+  // Retrieve existing data from the database
+  const query = 'SELECT * FROM toys WHERE id = ?';
+  db.query(query, [id], (err, results) => {
     if (err) {
       console.error(err);
-      res.status(500).json({ error: 'Failed to update toy', details: err });
-    } else if (result.affectedRows === 0) {
-      res.status(404).json({ error: 'Toy not found' });
-    } else {
-      res.json({ message: 'Toy updated successfully' });
+      res.status(500).json({ error: 'Failed to retrieve existing data', details: err });
+      return;
     }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Toy not found' });
+      return;
+    }
+
+    const existingData = results[0];
+
+    // Compare fields and update the database if necessary
+    const fieldsToUpdate = [
+      'name', 'src', 'brand', 'company', 'series', 'collection',
+      'variant', 'reissue', 'year', 'price', 'toycondition',
+      'upc', 'notes', 'quantity', 'completed'
+    ];
+
+    const updates = [];
+    const values = [];
+
+    fieldsToUpdate.forEach(field => {
+      if (req.body[field] !== undefined && req.body[field] !== existingData[field]) {
+        updates.push(`${field} = ?`);
+        values.push(req.body[field]);
+      }
+    });
+
+    if (updates.length === 0) {
+      res.status(400).json({ error: 'No fields to update' });
+      return;
+    }
+
+    values.push(id); // Add the ID as the last value for the WHERE clause
+
+    const updateQuery = `UPDATE toys SET ${updates.join(', ')} WHERE id = ?`;
+
+    // Execute the query with values
+    db.query(updateQuery, values, (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error(updateErr);
+        res.status(500).json({ error: 'Failed to update toy', details: updateErr });
+      } else if (updateResult.affectedRows === 0) {
+        res.status(404).json({ error: 'Toy not found' });
+      } else {
+        // Notify clients about the update
+        res.io.emit('updateItem');
+        res.json({ message: 'Toy updated successfully' });
+      }
+    });
   });
 });
-
 
 // Route to delete a toy by ID
 router.delete('/:id', (req, res) => {
@@ -205,6 +229,7 @@ router.delete('/:id', (req, res) => {
     } else if (result.affectedRows === 0) {
       res.status(404).json({ error: 'Toy not found' });
     } else {
+      res.io.emit('updateItem');
       res.json({ message: 'Toy deleted successfully' });
     }
   });

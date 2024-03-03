@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { endpoints } from "../../endpoints/Endpoints";
 import axios from "axios";
+import io from "socket.io-client"; // Import socket.io-client
 import moment from "moment";
 import validator from "validator";
 import Button from "react-bootstrap/Button";
@@ -21,6 +22,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState([]);
   const [errors, setErrors] = useState({});
+  const [socket, setSocket] = useState(null);
 
   // Get the user's role from localStorage
   const userRole = localStorage.getItem("userRole");
@@ -33,6 +35,18 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
   //   // Handle the case when the user's role is not found in localStorage
   //   console.log('User role not found in localStorage');
   // }
+
+  useEffect(() => {
+    // Create socket connection when the component mounts
+    const newSocket = io("http://localhost:3002");
+    setSocket(newSocket);
+
+    // Cleanup the socket connection when the component is unmounted
+    return () => {
+      newSocket.disconnect();
+    };
+  }, []); // Empty dependency array ensures that the effect runs only once when the component mounts
+
 
   useEffect(() => {
     async function fetchImage() {
@@ -268,16 +282,27 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       setValidationErrors(validationErrors);
       return;
     }
-
+  
     try {
-
-      let updatedToyWithNewImage = {...updatedToy};
-      
+      let updatedToyWithNewImage = { ...updatedToy };
+  
       if (imageFile) {
+        // Check if there's an existing image to delete
+        if (toy.src) {
+          try {
+            // Delete the old image
+            await axios.post(endpoints.API_URL + "delete-image", { src: toy.src });
+            console.log("Old image deleted successfully");
+          } catch (error) {
+            console.error("Error deleting old image:", error);
+            // Optionally, handle the error (e.g., notify the user)
+          }
+        }
+  
         const formData = new FormData();
         formData.append("image", imageFile);
         console.log("Form data:", formData);
-
+  
         try {
           const imageUploadResponse = await axios.post(
             endpoints.API_URL + "upload-image",
@@ -289,22 +314,24 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
               },
             }
           );
-          
+  
           const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
-          
           updatedToyWithNewImage.src = imageUrl;
-
         } catch (error) {
-          console.error("Error uploading image:", error);
+          console.error("Error uploading new image:", error);
           // Handle the error scenario if needed
         }
       }
-
+  
       // Perform the PUT request with the updatedToyWithNewImage data
       const response = await axios.put(
         endpoints.API_URL + "toys/" + updatedToy.id,
         updatedToyWithNewImage
       );
+  
+      // Emit a socket event after the toy is updated
+      socket.emit('toyUpdated', { toyId: updatedToy.id });
+  
       console.log("Response from server:", response.data); // Log the server response
       console.log("Toy updated successfully");
       handleModalClose();
@@ -312,7 +339,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     } catch (error) {
       console.error("Error updating toy", error);
     }
-  };
+  };  
 
   const handleCheckboxChange = (name) => {
     if (!editMode) {
@@ -340,13 +367,21 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     }
   };
 
-  const handleDeleteToy = async (id) => {
+  const handleDeleteToy = async (id, src) => {
     try {
+      // Delete the toy record from the database
       await axios.delete(endpoints.API_URL + "toys/" + id);
-      console.log("Toy deleted successfully");
+  
+      // Now, request the backend to delete the image file using the src information
+      await axios.post(endpoints.API_URL + "delete-image", { src });
+  
+      // Emit a socket event after the toy and its image are deleted
+      socket.emit('toyDeleted', { toyId: id });
+  
+      console.log("Toy and its image deleted successfully");
       handleModalClose();
     } catch (error) {
-      console.error("Error deleting toy", error);
+      console.error("Error deleting toy or its image", error);
     }
   };
 
@@ -742,7 +777,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
                   if (
                     window.confirm("Are you sure you wish to delete this toy?")
                   ) {
-                    handleDeleteToy(toy.id);
+                    handleDeleteToy(toy.id, toy.src);
                   }
                 }}
               >
