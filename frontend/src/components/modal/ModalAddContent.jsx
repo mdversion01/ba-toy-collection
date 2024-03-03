@@ -64,14 +64,14 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   };
 
   useEffect(() => {
-    // Connect to the server's WebSocket when the component mounts
+        // Connect to the server's WebSocket when the component mounts
     const newSocket = io("http://localhost:3002"); // Replace with your server's URL
     setSocket(newSocket);
 
     // Cleanup the socket connection when the component unmounts
     return () => {
       newSocket.disconnect();
-    };
+          };
   }, []);
 
   const handleClose = () => {
@@ -80,27 +80,8 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   };
   const handleShow = () => setShow(true);
 
-
-  // useEffect(() => {
-  //   // Listen for 'newItemAdded' events from the server
-  //   if (socket) {
-  //     socket.on("newItemAdded", (data) => {
-  //       // Handle the event data or trigger a refresh of your displayed items
-  //       console.log(data.message);
-  //       // You can call the 'onAddToy' function or update the state as needed
-  //     });
-  //   }
-
-  //   // Cleanup the event listener when the component unmounts
-  //   return () => {
-  //     if (socket) {
-  //       socket.off("newItemAdded");
-  //     }
-  //   };
-  // }, [socket]);
-
   const fetchBrands = async () => {
-    try {
+        try {
       const response = await fetch(endpoints.API_URL + "toys"); // Replace with your API endpoint to fetch brands
       const data = await response.json();
       const uniqueBrands = [...new Set(data.map((item) => item.brand))];
@@ -230,24 +211,24 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     if (!imageFile) {
       // Handle no image file selected error
       console.error("Please select an image file.");
-      return;
+            return;
     }
 
     // Create a new FormData object
     const formData = new FormData();
     formData.append("image", imageFile); // Append the image file to FormData
 
-    // Upload image to the server
-    try {
-      const imageUploadResponse = await axios.post(
-        endpoints.API_URL + "upload-image",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+  // Upload image to the server
+  try {
+        const imageUploadResponse = await axios.post(
+      endpoints.API_URL + "upload-image",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
       const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
 
@@ -281,7 +262,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       clearFormInputs();
     } catch (error) {
       console.error("Error uploading image:", error);
-    }
+          }
   };
 
   const validateYear = (year) => {
@@ -484,7 +465,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     if (socket) {
       socket.on("itemAdded", (data) => {
         // Handle the event data or trigger a refresh of your displayed items
-        console.log(data.message);
+        // console.log(data.message);
         // You can call the 'onAddToy' function or update the state as needed
       });
     }
@@ -544,23 +525,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
                 />
               </div>
             </div>
-
-            {/* <div className="row g-0">
-              <div className="col-md-12">
-                <FormField
-                  addClass={"title"}
-                  label="Image Path"
-                  fmLabel="Image Path"
-                  name={src}
-                  type="text"
-                  value={src}
-                  onChange={(e) => setSrc(e.target.value)}
-                  placeholder="Enter image path"
-                  fcw={"form-control-wrapper"}
-                  errors={errors.src}
-                />
-              </div>
-            </div> */}
 
             <div className="row g-0">
               <div className="col-md-12">

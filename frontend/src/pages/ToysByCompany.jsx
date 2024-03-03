@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { endpoints } from '../endpoints/Endpoints';
-import socketIOClient from 'socket.io-client';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { endpoints } from "../endpoints/Endpoints";
+import socketIOClient from "socket.io-client";
 
-import ToysByCompanyContent from '../components/content/ToysByCompanyContent';
-import { Form, Pagination } from 'react-bootstrap';
+import ToysByCompanyContent from "../components/content/ToysByCompanyContent";
+import { Form, Pagination } from "react-bootstrap";
 
 const ToysByCompany = () => {
   const [toys, setToys] = useState([]);
@@ -19,19 +19,19 @@ const ToysByCompany = () => {
     collections: [],
   });
   const [selectedFilters, setSelectedFilters] = useState({
-    company: '',
-    brand: '',
-    series: '',
-    collection: '',
+    company: "",
+    brand: "",
+    series: "",
+    collection: "",
   });
   const [filteredToys, setFilteredToys] = useState([]);
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  const userRole = localStorage.getItem('userRole');
+  const userRole = localStorage.getItem("userRole");
 
   // Function to fetch toys from the server
   const fetchToys = () => {
-    axios.get(endpoints.API_URL + 'toys')
+axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
         const sortedToys = response.data.sort((a, b) => {
           const companyComparison = a.company.localeCompare(b.company);
@@ -48,10 +48,12 @@ const ToysByCompany = () => {
 
         setToys(sortedToys);
 
-        const companies = [...new Set(sortedToys.map(toy => toy.company))];
-        const brands = [...new Set(sortedToys.map(toy => toy.brand))];
-        const series = [...new Set(sortedToys.map(toy => toy.series))];
-        const collections = [...new Set(sortedToys.map(toy => toy.collection))];
+        const companies = [...new Set(sortedToys.map((toy) => toy.company))];
+        const brands = [...new Set(sortedToys.map((toy) => toy.brand))];
+        const series = [...new Set(sortedToys.map((toy) => toy.series))];
+        const collections = [
+          ...new Set(sortedToys.map((toy) => toy.collection)),
+        ];
 
         companies.sort();
         brands.sort();
@@ -76,11 +78,11 @@ const ToysByCompany = () => {
         setAllTotalPrice(totalPrice);
 
         const filtered = sortedToys.filter(toy => (
-          (!selectedFilters.company || toy.company === selectedFilters.company) &&
-          (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-          (!selectedFilters.series || toy.series === selectedFilters.series) &&
-          (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
-          (!selectedFilters.completed || toy.completed === selectedFilters.completed)
+            (!selectedFilters.company || toy.company === selectedFilters.company) &&
+            (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
+            (!selectedFilters.series || toy.series === selectedFilters.series) &&
+            (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
+            (!selectedFilters.completed || toy.completed === selectedFilters.completed)
         ));
 
         setFilteredToys(filtered);
@@ -92,14 +94,14 @@ const ToysByCompany = () => {
 
   useEffect(() => {
     const socket = socketIOClient('http://localhost:3002');
-
+    
     // Fetch toys on initial load
     fetchToys();
 
     // Inside the 'itemAdded' and 'updateItem' event listeners
     socket.on('itemAdded', () => {
       console.log('itemAdded event received on the client');
-      // Update the trigger to fetch toys from the server when a new item is added
+            // Update the trigger to fetch toys from the server when a new item is added
       setUpdateTrigger((prev) => prev + 1);
     });
 
@@ -127,7 +129,7 @@ const ToysByCompany = () => {
   const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
+  
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedFilters]);
@@ -154,19 +156,22 @@ const ToysByCompany = () => {
                 const selectedCompany = e.target.value;
                 const selectedBrand = selectedFilters.brand;
 
-                if (selectedCompany === '') {
+                if (selectedCompany === "") {
                   // Reset all filters when "All Companies" is selected
                   setSelectedFilters({
-                    company: '',
-                    brand: '',
-                    series: '',
-                    collection: ''
+                    company: "",
+                    brand: "",
+                    series: "",
+                    collection: "",
                   });
                 } else {
                   setSelectedFilters({
                     ...selectedFilters,
                     company: selectedCompany,
-                    brand: selectedCompany !== selectedFilters.company ? '' : selectedBrand,
+                    brand:
+                      selectedCompany !== selectedFilters.company
+                        ? ""
+                        : selectedBrand,
                   });
                 }
               }}
@@ -182,12 +187,26 @@ const ToysByCompany = () => {
           <div className="col">
             <Form.Select
               size="sm"
-              aria-label="Brands" value={selectedFilters.brand}
-              onChange={(e) => setSelectedFilters({ ...selectedFilters, brand: e.target.value })}
+              aria-label="Brands"
+              value={selectedFilters.brand}
+              onChange={(e) =>
+                setSelectedFilters({
+                  ...selectedFilters,
+                  brand: e.target.value,
+                })
+              }
             >
               <option value="">All Brands</option>
               {filterOptions.brands
-                .filter((brand) => !selectedFilters.company || toys.some((toy) => toy.company === selectedFilters.company && toy.brand === brand))
+                .filter(
+                  (brand) =>
+                    !selectedFilters.company ||
+                    toys.some(
+                      (toy) =>
+                        toy.company === selectedFilters.company &&
+                        toy.brand === brand
+                    )
+                )
                 .map((brand) => (
                   <option key={brand} value={brand}>
                     {brand}
@@ -202,29 +221,34 @@ const ToysByCompany = () => {
               value={selectedFilters.series}
               onChange={(e) => {
                 const selectedSeries = e.target.value;
-                setSelectedFilters({ ...selectedFilters, series: selectedSeries });
+                setSelectedFilters({
+                  ...selectedFilters,
+                  series: selectedSeries,
+                });
               }}
             >
               <option value="">All Series</option>
               {filterOptions.series
-                .filter((series) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === series
-                  )
+                .filter(
+                  (series) =>
+                    !selectedFilters.company ||
+                    !selectedFilters.brand ||
+                    toys.some(
+                      (toy) =>
+                        toy.company === selectedFilters.company &&
+                        toy.brand === selectedFilters.brand &&
+                        toy.series === series
+                    )
                 )
-                .map((series) => (
-                  // Filter out blank/empty series
-                  series && (
-                    <option key={series} value={series}>
-                      {series}
-                    </option>
-                  )
-                ))}
+                .map(
+                  (series) =>
+                    // Filter out blank/empty series
+                    series && (
+                      <option key={series} value={series}>
+                        {series}
+                      </option>
+                    )
+                )}
             </Form.Select>
           </div>
           <div className="col">
@@ -234,30 +258,35 @@ const ToysByCompany = () => {
               value={selectedFilters.collection}
               onChange={(e) => {
                 const selectedCollection = e.target.value;
-                setSelectedFilters({ ...selectedFilters, collection: selectedCollection });
+                setSelectedFilters({
+                  ...selectedFilters,
+                  collection: selectedCollection,
+                });
               }}
             >
               <option value="">All Collections</option>
               {filterOptions.collections
-                .filter((collection) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === selectedFilters.series &&
-                      toy.collection === collection
-                  )
+                .filter(
+                  (collection) =>
+                    !selectedFilters.company ||
+                    !selectedFilters.brand ||
+                    toys.some(
+                      (toy) =>
+                        toy.company === selectedFilters.company &&
+                        toy.brand === selectedFilters.brand &&
+                        toy.series === selectedFilters.series &&
+                        toy.collection === collection
+                    )
                 )
-                .map((collection) => (
-                  // Filter out blank/empty collections
-                  collection && (
-                    <option key={collection} value={collection}>
-                      {collection}
-                    </option>
-                  )
-                ))}
+                .map(
+                  (collection) =>
+                    // Filter out blank/empty collections
+                    collection && (
+                      <option key={collection} value={collection}>
+                        {collection}
+                      </option>
+                    )
+                )}
             </Form.Select>
           </div>
           <div className="col">
@@ -266,11 +295,11 @@ const ToysByCompany = () => {
               onClick={() => {
                 // Clear all selected filters
                 setSelectedFilters({
-                  company: '',
-                  brand: '',
-                  series: '',
-                  collection: '',
-                  completed: '',
+                  company: "",
+                  brand: "",
+                  series: "",
+                  collection: "",
+                  completed: "",
                 });
               }}
             >
@@ -282,14 +311,16 @@ const ToysByCompany = () => {
 
       <div className="page-title">
         Toys by Company
-
-
         <div className="totals">
           <div className="total-count">Toy Total: {totalToys}</div>
-          {userRole === 'admin' && (
+          {userRole === "admin" && (
             <>
-              <div className="current-page">Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
-              <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+              <div className="current-page">
+                Collection Total Value: ${allTotalPrice.toFixed(2)}
+              </div>
+              <div className="current-page">
+                Current Page Value: ${totalPrice.toFixed(2)}
+              </div>
             </>
           )}
         </div>
@@ -299,14 +330,20 @@ const ToysByCompany = () => {
         key={updateTrigger}
         currentPage={currentPage}
         toysPerPage={toysPerPage}
-        currentToys={currentToys}  // Pass the current toys to the child component
+        currentToys={currentToys} // Pass the current toys to the child component
         toys={toys} // Pass all toys to the child component
       />
 
       <div className="pagination-wrapper">
         <Pagination size="sm">
-          <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
-          <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+          <Pagination.First
+            onClick={() => paginate(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
           {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
             <Pagination.Item
               key={startPage + index}
@@ -316,8 +353,14 @@ const ToysByCompany = () => {
               {startPage + index}
             </Pagination.Item>
           ))}
-          <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
-          <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
+          <Pagination.Next
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => paginate(totalPages)}
+            disabled={currentPage === totalPages}
+          />
         </Pagination>
       </div>
     </>
