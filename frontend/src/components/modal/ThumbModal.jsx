@@ -282,16 +282,27 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       setValidationErrors(validationErrors);
       return;
     }
-
+  
     try {
-
-      let updatedToyWithNewImage = {...updatedToy};
-      
+      let updatedToyWithNewImage = { ...updatedToy };
+  
       if (imageFile) {
+        // Check if there's an existing image to delete
+        if (toy.src) {
+          try {
+            // Delete the old image
+            await axios.post(endpoints.API_URL + "delete-image", { src: toy.src });
+            console.log("Old image deleted successfully");
+          } catch (error) {
+            console.error("Error deleting old image:", error);
+            // Optionally, handle the error (e.g., notify the user)
+          }
+        }
+  
         const formData = new FormData();
         formData.append("image", imageFile);
         console.log("Form data:", formData);
-
+  
         try {
           const imageUploadResponse = await axios.post(
             endpoints.API_URL + "upload-image",
@@ -303,26 +314,24 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
               },
             }
           );
-          
+  
           const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
-          
           updatedToyWithNewImage.src = imageUrl;
-
         } catch (error) {
-          console.error("Error uploading image:", error);
+          console.error("Error uploading new image:", error);
           // Handle the error scenario if needed
         }
       }
-
+  
       // Perform the PUT request with the updatedToyWithNewImage data
       const response = await axios.put(
         endpoints.API_URL + "toys/" + updatedToy.id,
         updatedToyWithNewImage
       );
-
+  
       // Emit a socket event after the toy is updated
       socket.emit('toyUpdated', { toyId: updatedToy.id });
-
+  
       console.log("Response from server:", response.data); // Log the server response
       console.log("Toy updated successfully");
       handleModalClose();
@@ -330,7 +339,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     } catch (error) {
       console.error("Error updating toy", error);
     }
-  };
+  };  
 
   const handleCheckboxChange = (name) => {
     if (!editMode) {
