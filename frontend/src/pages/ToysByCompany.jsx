@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { endpoints } from '../endpoints/Endpoints';
-import socketIOClient from 'socket.io-client'; // Import Socket.IO client library
+import socketIOClient from 'socket.io-client';
 
 import ToysByCompanyContent from '../components/content/ToysByCompanyContent';
 import { Form, Pagination } from 'react-bootstrap';
@@ -9,43 +9,30 @@ import { Form, Pagination } from 'react-bootstrap';
 const ToysByCompany = () => {
   const [toys, setToys] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [toysPerPage] = useState(100); // Number of toys to show per page
-
-  // Add state for total price and quantity
+  const [toysPerPage] = useState(100);
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
   const [allTotalPrice, setAllTotalPrice] = useState(0);
-
   const [filterOptions, setFilterOptions] = useState({
     companies: [],
     brands: [],
     series: [],
-    collections: []
+    collections: [],
   });
-
   const [selectedFilters, setSelectedFilters] = useState({
     company: '',
     brand: '',
     series: '',
-    collection: ''
+    collection: '',
   });
-
   const [filteredToys, setFilteredToys] = useState([]);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  // Get the user's role from localStorage
   const userRole = localStorage.getItem('userRole');
 
-  useEffect(() => {
-    console.log('Fetching toys from the server');
-    // Establish a Socket.IO connection
-    const socket = socketIOClient('http://localhost:3002');
-  
-    // Function to fetch toys from the server
-    const fetchToys = () => {
-      axios.get(endpoints.API_URL + 'toys')
+  // Function to fetch toys from the server
+  const fetchToys = () => {
+    axios.get(endpoints.API_URL + 'toys')
       .then((response) => {
-
-        console.log('Fetched toys:', response.data);
-
         const sortedToys = response.data.sort((a, b) => {
           const companyComparison = a.company.localeCompare(b.company);
           if (companyComparison !== 0) return companyComparison;
@@ -58,37 +45,36 @@ const ToysByCompany = () => {
 
           return a.collection.localeCompare(b.collection);
         });
+
         setToys(sortedToys);
-  
-        // Extract filter options, calculate totals, etc.
+
         const companies = [...new Set(sortedToys.map(toy => toy.company))];
         const brands = [...new Set(sortedToys.map(toy => toy.brand))];
         const series = [...new Set(sortedToys.map(toy => toy.series))];
         const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-  
+
         companies.sort();
         brands.sort();
         series.sort();
         collections.sort();
-  
+
         setFilterOptions({
           companies,
           brands,
           series,
-          collections
+          collections,
         });
-  
+
         let totalQuantity = 0;
         let totalPrice = 0;
         sortedToys.forEach((toy) => {
           totalQuantity += toy.quantity;
           totalPrice += toy.price * toy.quantity;
         });
-  
+
         setAllTotalQuantity(totalQuantity);
         setAllTotalPrice(totalPrice);
-  
-        // Update the filtered toys based on selected filters
+
         const filtered = sortedToys.filter(toy => (
           (!selectedFilters.company || toy.company === selectedFilters.company) &&
           (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
@@ -96,58 +82,56 @@ const ToysByCompany = () => {
           (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
           (!selectedFilters.completed || toy.completed === selectedFilters.completed)
         ));
-  
-        setFilteredToys(filtered);
 
+        setFilteredToys(filtered);
       })
       .catch((error) => {
         console.error('Error fetching toys:', error);
       });
-    };
-  
+  };
+
+  useEffect(() => {
+    const socket = socketIOClient('http://localhost:3002');
+
     // Fetch toys on initial load
     fetchToys();
-  
-    // Listen for the 'addItem' event
-    socket.on('addItem', () => {
-      console.log('addItem event received on the client');
-      // Fetch toys from the server when a new item is added
-      fetchToys();
+
+    // Inside the 'itemAdded' and 'updateItem' event listeners
+    socket.on('itemAdded', () => {
+      console.log('itemAdded event received on the client');
+      // Update the trigger to fetch toys from the server when a new item is added
+      setUpdateTrigger((prev) => prev + 1);
     });
 
-    socket.on('newItemAdded', () => {
-      console.log('newItemAdded event received on the client');
-      // Fetch toys from the server when a new item is added
-      fetchToys();
+    socket.on('updateItem', () => {
+      console.log('updateItem event received on the client');
+      // Update the trigger to fetch toys from the server when an item is updated or deleted
+      setUpdateTrigger((prev) => prev + 1);
     });
-  
+
     // Cleanup the socket connection when the component unmounts
     return () => {
       socket.disconnect();
       console.log('Disconnected from server via socket');
     };
-  }, [selectedFilters]); // Add selectedFilters as a dependency to update on filter changes
-  
-  // Calculate the range of pages to display
+  }, [selectedFilters, updateTrigger]);
+
   const pageRange = 8;
   const totalPages = Math.ceil(filteredToys.length / toysPerPage);
 
   const startPage = Math.max(currentPage - Math.floor(pageRange / 2), 1);
   const endPage = Math.min(startPage + pageRange - 1, totalPages);
 
-  // Get current toys for the current page
   const indexOfLastToy = currentPage * toysPerPage;
   const indexOfFirstToy = indexOfLastToy - toysPerPage;
   const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedFilters]);
 
-  // Calculate the total price for the currently displayed toys
   let totalQuantity = 0;
   let totalPrice = 0;
   currentToys.forEach((toy) => {
@@ -155,8 +139,7 @@ const ToysByCompany = () => {
     totalPrice += toy.price * toy.quantity;
   });
 
-  // Gets the total number of toys
-  const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
+  const totalToys = toys.reduce((a, v) => a + v.quantity, 0);
 
   return (
     <>
@@ -313,6 +296,7 @@ const ToysByCompany = () => {
       </div>
 
       <ToysByCompanyContent
+        key={updateTrigger}
         currentPage={currentPage}
         toysPerPage={toysPerPage}
         currentToys={currentToys}  // Pass the current toys to the child component

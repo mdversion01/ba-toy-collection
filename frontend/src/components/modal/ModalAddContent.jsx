@@ -81,23 +81,23 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   const handleShow = () => setShow(true);
 
 
-  useEffect(() => {
-    // Listen for 'newItemAdded' events from the server
-    if (socket) {
-      socket.on("newItemAdded", (data) => {
-        // Handle the event data or trigger a refresh of your displayed items
-        console.log(data.message);
-        // You can call the 'onAddToy' function or update the state as needed
-      });
-    }
+  // useEffect(() => {
+  //   // Listen for 'newItemAdded' events from the server
+  //   if (socket) {
+  //     socket.on("newItemAdded", (data) => {
+  //       // Handle the event data or trigger a refresh of your displayed items
+  //       console.log(data.message);
+  //       // You can call the 'onAddToy' function or update the state as needed
+  //     });
+  //   }
 
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      if (socket) {
-        socket.off("newItemAdded");
-      }
-    };
-  }, [socket]);
+  //   // Cleanup the event listener when the component unmounts
+  //   return () => {
+  //     if (socket) {
+  //       socket.off("newItemAdded");
+  //     }
+  //   };
+  // }, [socket]);
 
   const fetchBrands = async () => {
     try {
@@ -275,7 +275,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       submitToysDatabase(toyData);
 
       // Notify connected clients about the new item
-      socket.emit("addItem");
+      socket.emit("itemAdded");
 
       // Clear form inputs and reset the newCompany state variable
       clearFormInputs();
@@ -480,9 +480,9 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   };
 
   useEffect(() => {
-    // Listen for 'newItemAdded' events from the server
+    // Listen for 'itemAdded' events from the server
     if (socket) {
-      socket.on("newItemAdded", (data) => {
+      socket.on("itemAdded", (data) => {
         // Handle the event data or trigger a refresh of your displayed items
         console.log(data.message);
         // You can call the 'onAddToy' function or update the state as needed
@@ -492,7 +492,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     // Cleanup the event listener when the component unmounts
     return () => {
       if (socket) {
-        socket.off("newItemAdded");
+        socket.off("itemAdded");
       }
     };
   }, [socket]);
