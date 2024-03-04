@@ -31,7 +31,8 @@ const ToysByCompany = () => {
 
   // Function to fetch toys from the server
   const fetchToys = () => {
-axios.get(endpoints.API_URL + 'toys')
+    axios
+      .get(endpoints.API_URL + "toys")
       .then((response) => {
         const sortedToys = response.data.sort((a, b) => {
           const companyComparison = a.company.localeCompare(b.company);
@@ -77,36 +78,41 @@ axios.get(endpoints.API_URL + 'toys')
         setAllTotalQuantity(totalQuantity);
         setAllTotalPrice(totalPrice);
 
-        const filtered = sortedToys.filter(toy => (
-            (!selectedFilters.company || toy.company === selectedFilters.company) &&
+        const filtered = sortedToys.filter(
+          (toy) =>
+            (!selectedFilters.company ||
+              toy.company === selectedFilters.company) &&
             (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-            (!selectedFilters.series || toy.series === selectedFilters.series) &&
-            (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
-            (!selectedFilters.completed || toy.completed === selectedFilters.completed)
-        ));
+            (!selectedFilters.series ||
+              toy.series === selectedFilters.series) &&
+            (!selectedFilters.collection ||
+              toy.collection === selectedFilters.collection) &&
+            (!selectedFilters.completed ||
+              toy.completed === selectedFilters.completed)
+        );
 
         setFilteredToys(filtered);
       })
       .catch((error) => {
-        console.error('Error fetching toys:', error);
+        console.error("Error fetching toys:", error);
       });
   };
 
   useEffect(() => {
-    const socket = socketIOClient('http://localhost:3002');
-    
+    const socket = socketIOClient("http://localhost:3002");
+
     // Fetch toys on initial load
     fetchToys();
 
     // Inside the 'itemAdded' and 'updateItem' event listeners
-    socket.on('itemAdded', () => {
-      console.log('itemAdded event received on the client');
-            // Update the trigger to fetch toys from the server when a new item is added
+    socket.on("itemAdded", () => {
+      console.log("itemAdded event received on the client");
+      // Update the trigger to fetch toys from the server when a new item is added
       setUpdateTrigger((prev) => prev + 1);
     });
 
-    socket.on('updateItem', () => {
-      console.log('updateItem event received on the client');
+    socket.on("updateItem", () => {
+      console.log("updateItem event received on the client");
       // Update the trigger to fetch toys from the server when an item is updated or deleted
       setUpdateTrigger((prev) => prev + 1);
     });
@@ -114,7 +120,7 @@ axios.get(endpoints.API_URL + 'toys')
     // Cleanup the socket connection when the component unmounts
     return () => {
       socket.disconnect();
-      console.log('Disconnected from server via socket');
+      console.log("Disconnected from server via socket");
     };
   }, [selectedFilters, updateTrigger]);
 
@@ -129,7 +135,7 @@ axios.get(endpoints.API_URL + 'toys')
   const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  
+
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedFilters]);

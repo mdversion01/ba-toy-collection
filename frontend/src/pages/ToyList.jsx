@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { endpoints } from '../endpoints/Endpoints';
+import socketIOClient from "socket.io-client";
 
 import ToyListContent from '../components/content/ToyListContent';
 import { Form, Pagination } from 'react-bootstrap';
@@ -13,20 +14,6 @@ const ToysList = () => {
   // Add state for total price and quantity
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
   const [allTotalPrice, setAllTotalPrice] = useState(0);
-
-  // const [user, setUser] = useState(null);
-
-  // Get the user's role from localStorage
-  const userRole = localStorage.getItem('userRole');
-
-  // Check if the userRole exists and is not null
-  // if (userRole) {
-  //   // Do something with the user's role (e.g., store it in state)
-  //   console.log('User role:', userRole);
-  // } else {
-  //   // Handle the case when the user's role is not found in localStorage
-  //   console.log('User role not found in localStorage');
-  // }
 
   const [filterOptions, setFilterOptions] = useState({
     companies: [],
@@ -43,51 +30,61 @@ const ToysList = () => {
   });
 
   const [filteredToys, setFilteredToys] = useState([]);
+  const userRole = localStorage.getItem("userRole");
+
+  const fetchToys = async () => {
+    try {
+      const response = await axios.get(endpoints.API_URL + 'toys');
+      const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
+      setToys(sortedToys);
+
+      // Extract filter options
+      const companies = [...new Set(sortedToys.map(toy => toy.company))];
+      const brands = [...new Set(sortedToys.map(toy => toy.brand))];
+      const series = [...new Set(sortedToys.map(toy => toy.series))];
+      const collections = [...new Set(sortedToys.map(toy => toy.collection))];
+
+      // Sort filter options alphabetically
+      companies.sort();
+      brands.sort();
+      series.sort();
+      collections.sort();
+
+      // Update filter options in state
+      setFilterOptions({
+        companies,
+        brands,
+        series,
+        collections
+      });
+
+      // Calculate total price and quantity for all toys
+      let totalQuantity = 0;
+      let totalPrice = 0;
+      sortedToys.forEach((toy) => {
+        totalQuantity += toy.quantity;
+        totalPrice += toy.price * toy.quantity;
+      });
+
+      setAllTotalQuantity(totalQuantity);
+      setAllTotalPrice(totalPrice);
+
+      applyFilters(sortedToys);
+    } catch (error) {
+      console.error('Error fetching toys:', error);
+    }
+  };
 
   useEffect(() => {
-    axios.get(endpoints.API_URL + 'toys')
-      .then((response) => {
-        const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
-        setToys(sortedToys);
-
-        // Extract filter options
-        const companies = [...new Set(sortedToys.map(toy => toy.company))];
-        const brands = [...new Set(sortedToys.map(toy => toy.brand))];
-        const series = [...new Set(sortedToys.map(toy => toy.series))];
-        const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-
-        // Sort filter options alphabetically
-        companies.sort();
-        brands.sort();
-        series.sort();
-        collections.sort();
-
-        // Update filter options in state
-        setFilterOptions({
-          companies,
-          brands,
-          series,
-          collections
-        });
-
-        // Calculate total price and quantity for all toys
-        let totalQuantity = 0;
-        let totalPrice = 0;
-        sortedToys.forEach((toy) => {
-          totalQuantity += toy.quantity;
-          totalPrice += toy.price * toy.quantity;
-        });
-
-        setAllTotalQuantity(totalQuantity);
-        setAllTotalPrice(totalPrice);
-      })
-      .catch((error) => {
-        console.error('Error fetching toys:', error);
-      });
+    fetchToys();
   }, []);
 
   useEffect(() => {
-    const filtered = toys.filter(toy => (
+    applyFilters(toys);
+  }, [selectedFilters, toys]);
+
+  const applyFilters = (toysToFilter) => {
+    const filtered = toysToFilter.filter(toy => (
       (!selectedFilters.company || toy.company === selectedFilters.company) &&
       (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
       (!selectedFilters.series || toy.series === selectedFilters.series) &&
@@ -96,23 +93,17 @@ const ToysList = () => {
     ));
 
     setFilteredToys(filtered);
-  }, [toys, selectedFilters]);
+  };
 
-  // Calculate the range of pages to display
   const pageRange = 8;
-  //const totalPages = Math.ceil(toys.length / toysPerPage);
   const totalPages = Math.ceil(filteredToys.length / toysPerPage);
-
   const startPage = Math.max(currentPage - Math.floor(pageRange / 2), 1);
   const endPage = Math.min(startPage + pageRange - 1, totalPages);
 
-
-  // Get current toys for the current page
   const indexOfLastToy = currentPage * toysPerPage;
   const indexOfFirstToy = indexOfLastToy - toysPerPage;
   const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   useEffect(() => {
@@ -129,6 +120,26 @@ const ToysList = () => {
 
   // Gets the total number of toys
   const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
+
+  useEffect(() => {
+    const socket = socketIOClient("http://localhost:3002");
+
+    socket.on("itemAdded", () => {
+      console.log("itemAdded event received on the client");
+      fetchToys(); // Refetch toys when a new item is added
+    });
+
+    socket.on("updateItem", () => {
+      console.log("updateItem event received on the client");
+      fetchToys(); // Refetch toys when an item is updated or deleted
+    });
+
+    // Cleanup the socket connection when the component unmounts
+    return () => {
+      socket.disconnect();
+      console.log("Disconnected from server via socket");
+    };
+  }, []);
 
   return (
     <>
