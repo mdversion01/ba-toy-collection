@@ -1,82 +1,90 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { endpoints } from '../endpoints/Endpoints';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { endpoints } from "../endpoints/Endpoints";
 import socketIOClient from "socket.io-client";
-
-import ToyListContent from '../components/content/ToyListContent';
-import { Form, Pagination } from 'react-bootstrap';
+import ToyListContent from "../components/content/ToyListContent";
+import Filters from "../components/filters/Filters";
+import { Pagination } from "react-bootstrap";
 
 const ToysList = () => {
   const [toys, setToys] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [toysPerPage] = useState(50); // Number of toys to show per page
-
   // Add state for total price and quantity
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
   const [allTotalPrice, setAllTotalPrice] = useState(0);
-
   const [filterOptions, setFilterOptions] = useState({
     companies: [],
     brands: [],
     series: [],
-    collections: []
+    collections: [],
   });
-
   const [selectedFilters, setSelectedFilters] = useState({
-    company: '',
-    brand: '',
-    series: '',
-    collection: ''
+    company: "",
+    brand: "",
+    series: "",
+    collection: "",
   });
-
   const [filteredToys, setFilteredToys] = useState([]);
+
   const userRole = localStorage.getItem("userRole");
 
-  const fetchToys = async () => {
-    try {
-      const response = await axios.get(endpoints.API_URL + 'toys');
-      const sortedToys = response.data.sort((a, b) => a.name.localeCompare(b.name));
-      setToys(sortedToys);
-
-      // Extract filter options
-      const companies = [...new Set(sortedToys.map(toy => toy.company))];
-      const brands = [...new Set(sortedToys.map(toy => toy.brand))];
-      const series = [...new Set(sortedToys.map(toy => toy.series))];
-      const collections = [...new Set(sortedToys.map(toy => toy.collection))];
-
-      // Sort filter options alphabetically
-      companies.sort();
-      brands.sort();
-      series.sort();
-      collections.sort();
-
-      // Update filter options in state
-      setFilterOptions({
-        companies,
-        brands,
-        series,
-        collections
-      });
-
-      // Calculate total price and quantity for all toys
-      let totalQuantity = 0;
-      let totalPrice = 0;
-      sortedToys.forEach((toy) => {
-        totalQuantity += toy.quantity;
-        totalPrice += toy.price * toy.quantity;
-      });
-
-      setAllTotalQuantity(totalQuantity);
-      setAllTotalPrice(totalPrice);
-
-      applyFilters(sortedToys);
-    } catch (error) {
-      console.error('Error fetching toys:', error);
-    }
-  };
-
   useEffect(() => {
+    const fetchToys = async () => {
+      try {
+        const response = await axios.get(endpoints.API_URL + "toys");
+        const sortedToys = response.data.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        setToys(sortedToys);
+
+        // Extract filter options
+        const companies = [...new Set(sortedToys.map((toy) => toy.company))];
+        const brands = [...new Set(sortedToys.map((toy) => toy.brand))];
+        const series = [...new Set(sortedToys.map((toy) => toy.series))];
+        const collections = [
+          ...new Set(sortedToys.map((toy) => toy.collection)),
+        ];
+
+        // Sort filter options alphabetically
+        companies.sort();
+        brands.sort();
+        series.sort();
+        collections.sort();
+
+        // Update filter options in state
+        setFilterOptions({
+          companies,
+          brands,
+          series,
+          collections,
+        });
+
+        // Calculate total price and quantity for all toys
+        let totalQuantity = 0;
+        let totalPrice = 0;
+        sortedToys.forEach((toy) => {
+          totalQuantity += toy.quantity;
+          totalPrice += toy.price * toy.quantity;
+        });
+
+        setAllTotalQuantity(totalQuantity);
+        setAllTotalPrice(totalPrice);
+
+        applyFilters(sortedToys);
+      } catch (error) {
+        console.error("Error fetching toys:", error);
+      }
+    };
+
     fetchToys();
+    const socket = socketIOClient("http://localhost:3002");
+    socket.on("itemAdded", fetchToys);
+    socket.on("updateItem", fetchToys);
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -84,15 +92,26 @@ const ToysList = () => {
   }, [selectedFilters, toys]);
 
   const applyFilters = (toysToFilter) => {
-    const filtered = toysToFilter.filter(toy => (
-      (!selectedFilters.company || toy.company === selectedFilters.company) &&
-      (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-      (!selectedFilters.series || toy.series === selectedFilters.series) &&
-      (!selectedFilters.collection || toy.collection === selectedFilters.collection) &&
-      (!selectedFilters.completed || toy.completed === selectedFilters.completed)
-    ));
+    const filtered = toysToFilter.filter(
+      (toy) =>
+        (!selectedFilters.company || toy.company === selectedFilters.company) &&
+        (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
+        (!selectedFilters.series || toy.series === selectedFilters.series) &&
+        (!selectedFilters.collection ||
+          toy.collection === selectedFilters.collection) &&
+        (!selectedFilters.completed ||
+          toy.completed === selectedFilters.completed)
+    );
 
     setFilteredToys(filtered);
+  };
+
+  const handleFilterChange = (filterName, value) => {
+    setSelectedFilters((prev) => ({ ...prev, [filterName]: value }));
+  };
+
+  const handleClearFilters = () => {
+    setSelectedFilters({ company: "", brand: "", series: "", collection: "" });
   };
 
   const pageRange = 8;
@@ -119,190 +138,48 @@ const ToysList = () => {
   });
 
   // Gets the total number of toys
-  const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
-
-  useEffect(() => {
-    const socket = socketIOClient("http://localhost:3002");
-
-    socket.on("itemAdded", () => {
-      console.log("itemAdded event received on the client");
-      fetchToys(); // Refetch toys when a new item is added
-    });
-
-    socket.on("updateItem", () => {
-      console.log("updateItem event received on the client");
-      fetchToys(); // Refetch toys when an item is updated or deleted
-    });
-
-    // Cleanup the socket connection when the component unmounts
-    return () => {
-      socket.disconnect();
-      console.log("Disconnected from server via socket");
-    };
-  }, []);
+  const totalToys = toys.reduce((a, v) => (a = a + v.quantity), 0);
 
   return (
     <>
-      <div className="filter-section">
-        <div className="row">
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Companies"
-              value={selectedFilters.company}
-              onChange={(e) => {
-                const selectedCompany = e.target.value;
-                const selectedBrand = selectedFilters.brand;
-
-                if (selectedCompany === '') {
-                  // Reset all filters when "All Companies" is selected
-                  setSelectedFilters({
-                    company: '',
-                    brand: '',
-                    series: '',
-                    collection: ''
-                  });
-                } else {
-                  setSelectedFilters({
-                    ...selectedFilters,
-                    company: selectedCompany,
-                    brand: selectedCompany !== selectedFilters.company ? '' : selectedBrand,
-                  });
-                }
-              }}
-            >
-              <option value="">All Companies</option>
-              {filterOptions.companies.map((company) => (
-                <option key={company} value={company}>
-                  {company}
-                </option>
-              ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Brands" value={selectedFilters.brand}
-              onChange={(e) => setSelectedFilters({ ...selectedFilters, brand: e.target.value })}
-            >
-              <option value="">All Brands</option>
-              {filterOptions.brands
-                .filter((brand) => !selectedFilters.company || toys.some((toy) => toy.company === selectedFilters.company && toy.brand === brand))
-                .map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Series"
-              value={selectedFilters.series}
-              onChange={(e) => {
-                const selectedSeries = e.target.value;
-                setSelectedFilters({ ...selectedFilters, series: selectedSeries });
-              }}
-            >
-              <option value="">All Series</option>
-              {filterOptions.series
-                .filter((series) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === series
-                  )
-                )
-                .map((series) => (
-                  // Filter out blank/empty series
-                  series && (
-                    <option key={series} value={series}>
-                      {series}
-                    </option>
-                  )
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <Form.Select
-              size="sm"
-              aria-label="Collections"
-              value={selectedFilters.collection}
-              onChange={(e) => {
-                const selectedCollection = e.target.value;
-                setSelectedFilters({ ...selectedFilters, collection: selectedCollection });
-              }}
-            >
-              <option value="">All Collections</option>
-              {filterOptions.collections
-                .filter((collection) =>
-                  !selectedFilters.company ||
-                  !selectedFilters.brand ||
-                  toys.some(
-                    (toy) =>
-                      toy.company === selectedFilters.company &&
-                      toy.brand === selectedFilters.brand &&
-                      toy.series === selectedFilters.series &&
-                      toy.collection === collection
-                  )
-                )
-                .map((collection) => (
-                  // Filter out blank/empty collections
-                  collection && (
-                    <option key={collection} value={collection}>
-                      {collection}
-                    </option>
-                  )
-                ))}
-            </Form.Select>
-          </div>
-          <div className="col">
-            <button
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                // Clear all selected filters
-                setSelectedFilters({
-                  company: '',
-                  brand: '',
-                  series: '',
-                  collection: '',
-                  completed: '',
-                });
-              }}
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
+      <Filters
+        filterOptions={filterOptions}
+        selectedFilters={selectedFilters}
+        setSelectedFilters={setSelectedFilters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        toys={toys}
+      />
 
       <div className="page-title">
         All Toys
         <div className="totals">
           <div className="total-count">Toy Total: {totalToys}</div>
-          {userRole === 'admin' && (
+          {userRole === "admin" && (
             <>
-              <div className="current-page">Collection Total Value: ${allTotalPrice.toFixed(2)}</div>
-              <div className="current-page">Current Page Value: ${totalPrice.toFixed(2)}</div>
+              <div className="current-page">
+                Collection Total Value: ${allTotalPrice.toFixed(2)}
+              </div>
+              <div className="current-page">
+                Current Page Value: ${totalPrice.toFixed(2)}
+              </div>
             </>
           )}
         </div>
       </div>
 
-      <ToyListContent
-        currentToys={currentToys}
-        dateadded={toys.dateadded}
-      />
-
+      <ToyListContent currentToys={currentToys} dateadded={toys.dateadded} />
 
       <div className="pagination-wrapper">
         <Pagination size="sm">
-          <Pagination.First onClick={() => paginate(1)} disabled={currentPage === 1} />
-          <Pagination.Prev onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+          <Pagination.First
+            onClick={() => paginate(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
           {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
             <Pagination.Item
               key={startPage + index}
@@ -312,13 +189,17 @@ const ToysList = () => {
               {startPage + index}
             </Pagination.Item>
           ))}
-          <Pagination.Next onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
-          <Pagination.Last onClick={() => paginate(totalPages)} disabled={currentPage === totalPages} />
+          <Pagination.Next
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => paginate(totalPages)}
+            disabled={currentPage === totalPages}
+          />
         </Pagination>
       </div>
     </>
-
-
   );
 };
 
