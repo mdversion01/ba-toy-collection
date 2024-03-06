@@ -48,7 +48,7 @@ const Thumb = ({ toy }) => {
         <AddedToy date={toy.dateadded} />
         <IsVariant variant={toy.variant} />
         <ToyQuantity number={toy.quantity} />
-        {imageUrl && <img src={imageUrl} alt={toy.alt} style={{ height: '150px' }} />}
+        {imageUrl && <img src={imageUrl} alt={toy.name} style={{ height: '150px' }} />}
       </div>
       <ThumbModal
         show={show}
