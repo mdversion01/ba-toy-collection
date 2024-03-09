@@ -102,7 +102,6 @@ const ToysByCompany = () => {
 
   const pageRange = 8;
   const totalPages = Math.ceil(filteredToys.length / toysPerPage);
-
   const startPage = Math.max(currentPage - Math.floor(pageRange / 2), 1);
   const endPage = Math.min(startPage + pageRange - 1, totalPages);
 
