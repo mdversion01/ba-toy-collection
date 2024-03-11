@@ -4,7 +4,7 @@ import { endpoints } from "../endpoints/Endpoints";
 import socketIOClient from "socket.io-client";
 import ToyListContent from "../components/content/ToyListContent";
 import Filters from "../components/filters/Filters";
-import { Pagination } from "react-bootstrap";
+import CustomPagination from "../components/pagination/CustomPagination";
 
 const ToysList = () => {
   const [toys, setToys] = useState([]);
@@ -114,17 +114,6 @@ const ToysList = () => {
     setSelectedFilters({ company: "", brand: "", series: "", collection: "" });
   };
 
-  const pageRange = 8;
-  const totalPages = Math.ceil(filteredToys.length / toysPerPage);
-  const startPage = Math.max(currentPage - Math.floor(pageRange / 2), 1);
-  const endPage = Math.min(startPage + pageRange - 1, totalPages);
-
-  const indexOfLastToy = currentPage * toysPerPage;
-  const indexOfFirstToy = indexOfLastToy - toysPerPage;
-  const currentToys = filteredToys.slice(indexOfFirstToy, indexOfLastToy);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedFilters]);
@@ -132,13 +121,35 @@ const ToysList = () => {
   // Calculate the total price for the currently displayed toys
   let totalQuantity = 0;
   let totalPrice = 0;
+
+  // Gets the total number of toys
+  const totalToys = toys.reduce((a, v) => (a = a + v.quantity), 0);
+
+  // Function to handle page change
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Calculate the total number of pages based on the length of filtered toys
+  const totalPages = Math.ceil(filteredToys.length / toysPerPage);
+
+  // Determine the toys to be displayed on the current page
+  const indexOfFirstToy = (currentPage - 1) * toysPerPage;
+  const currentToys = filteredToys.slice(
+    indexOfFirstToy,
+    indexOfFirstToy + toysPerPage
+  );
+
+  // Now that currentToys is defined, calculate the total value of the current page's toys
+  let currentPageValue = currentToys.reduce(
+    (acc, toy) => acc + toy.price * toy.quantity,
+    0
+  );
+
   currentToys.forEach((toy) => {
     totalQuantity += toy.quantity;
     totalPrice += toy.price * toy.quantity;
   });
-
-  // Gets the total number of toys
-  const totalToys = toys.reduce((a, v) => (a = a + v.quantity), 0);
 
   return (
     <>
@@ -170,35 +181,11 @@ const ToysList = () => {
 
       <ToyListContent currentToys={currentToys} dateadded={toys.dateadded} />
 
-      <div className="pagination-wrapper">
-        <Pagination size="sm">
-          <Pagination.First
-            onClick={() => paginate(1)}
-            disabled={currentPage === 1}
-          />
-          <Pagination.Prev
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-          />
-          {Array.from({ length: endPage - startPage + 1 }, (_, index) => (
-            <Pagination.Item
-              key={startPage + index}
-              active={startPage + index === currentPage}
-              onClick={() => paginate(startPage + index)}
-            >
-              {startPage + index}
-            </Pagination.Item>
-          ))}
-          <Pagination.Next
-            onClick={() => paginate(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          />
-          <Pagination.Last
-            onClick={() => paginate(totalPages)}
-            disabled={currentPage === totalPages}
-          />
-        </Pagination>
-      </div>
+      <CustomPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </>
   );
 };
