@@ -67,8 +67,11 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       }
     }
 
+    console.log("Toy src:", toy.src);
+    console.log("Toy thumb:", toy.thumb);
+
     fetchImage();
-  }, [toy.src]);
+  }, [toy.src], [toy.thumb]);
 
   const [validationErrors, setValidationErrors] = useState({
     name: "",
@@ -258,6 +261,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
 
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [thumbnailUrl , setThumbnailUrl ] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -298,6 +302,17 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
             // Optionally, handle the error (e.g., notify the user)
           }
         }
+
+        if (toy.thumb) {      
+          try {
+            // Delete the old thumbnail
+            await axios.post(endpoints.API_URL + "delete-image", { src: toy.thumb });
+            console.log("Old thumbnail deleted successfully");
+          } catch (error) {
+            console.error("Error deleting old thumbnail:", error);
+            // Optionally, handle the error (e.g., notify the user)
+          }
+        }
   
         const formData = new FormData();
         formData.append("image", imageFile);
@@ -315,8 +330,13 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
             }
           );
   
-          const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
+          const { imageUrl, thumbnailUrl  } = imageUploadResponse.data; // Get the uploaded image URL
           updatedToyWithNewImage.src = imageUrl;
+          updatedToyWithNewImage.thumb = thumbnailUrl ;
+
+          console.log("Updating toy with new image data:", updatedToyWithNewImage);
+
+          console.log("Image uploaded successfully:", imageUrl, thumbnailUrl );
         } catch (error) {
           console.error("Error uploading new image:", error);
           // Handle the error scenario if needed
