@@ -119,11 +119,9 @@ router.post(
   "/",
   [formatInputData, ...sanitizationRules, ...validationRules],
   (req, res) => {
-    console.log("Received request body:", req.body); // Log the received request body
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log("Validation errors:", errors.array()); // Log validation errors
+      console.error("Validation errors:", errors.array()); // Log validation errors
       return res.status(400).json(errors.array());
     }
 
@@ -146,25 +144,6 @@ router.post(
       quantity,
       completed,
     } = req.body;
-    console.log("Parsed values:", {
-      name,
-      src,
-      thumb,
-      brand,
-      series,
-      collection,
-      variant,
-      reissue,
-      company,
-      year,
-      price,
-      toycondition,
-      upc,
-      dateadded,
-      notes,
-      quantity,
-      completed,
-    }); // Log parsed values
 
     // Perform additional custom validation if needed
     if (year > new Date().getFullYear()) {

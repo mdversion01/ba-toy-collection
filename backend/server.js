@@ -69,22 +69,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// // POST endpoint for image upload
-// app.post('/api/upload-image', upload.single('image'), (req, res) => {
-//   // 'image' should match the name attribute in the form data (e.g., formData.append('image', imageFile);)
-
-//   // Retrieve the uploaded image file details
-//   const imageUrl = req.file.path; // Assuming the path to the uploaded image is returned
-
-//   // Process the image (save to database, perform other actions, etc.)
-//   // Return the URL or any other necessary information about the uploaded image
-//   res.json({ imageUrl: imageUrl });
-// });
-
 // POST endpoint for image upload
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
-
-  console.log("Attempting to upload an image...");
 
   try {
 
@@ -112,8 +98,8 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     });
 
     // Log the path and filename of the uploaded image
-    console.log('Image path:', req.file.path);
-    console.log('Image filename:', req.file.filename);
+    // console.log('Image path:', req.file.path);
+    // console.log('Image filename:', req.file.filename);
 
   } catch (error) {
     console.error("Error processing image:", error);
@@ -128,7 +114,6 @@ const baseImagePath = '';  // Replace with the actual base path from the databas
 app.post('/api/delete-image', async (req, res) => {
   const { src } = req.body;
   const filePath = path.join(baseImagePath, src);
-  console.log('Deleting image:', filePath);
 
   try {
     // Delete the image file
@@ -142,8 +127,7 @@ app.post('/api/delete-image', async (req, res) => {
 
 // WebSocket connection
 io.on('connection', (socket) => {
-  console.log('A user connected');
-  console.log('A user connected with id:', socket.id);
+  // console.log('A user connected with id:', socket.id);
 
   // Example: Handle 'itemAdded' event from the client
   socket.on('itemAdded', () => {
@@ -153,8 +137,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', (reason) => {
-    console.log('User disconnected');
-    console.log(`User disconnected. ID: ${socket.id}, Reason: ${reason}`);
+    // console.log(`User disconnected. ID: ${socket.id}, Reason: ${reason}`);
   });
 });
 
@@ -177,5 +160,5 @@ app.use('/api/toys', toysRoute);
 const PORT = 3002;
 
 server.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+  // console.log(`Server listening on port ${PORT}`);
 });

@@ -62,7 +62,8 @@ const ToysByCompany = () => {
         a.company.localeCompare(b.company) ||
         a.brand.localeCompare(b.brand) ||
         a.series.localeCompare(b.series) ||
-        a.collection.localeCompare(b.collection)
+        a.collection.localeCompare(b.collection) ||
+        a.name.localeCompare(b.name)
       );
     });
   };
@@ -128,17 +129,9 @@ const ToysByCompany = () => {
 
   return (
     <>
-      <Filters
-        filterOptions={filterOptions}
-        selectedFilters={selectedFilters}
-        setSelectedFilters={setSelectedFilters}
-        onFilterChange={handleFilterChange}
-        onClearFilters={handleClearFilters}
-        toys={toys}
-      />
-
       <div className="page-title">
         Toys by Company
+
         <div className="totals">
           <div className="total-count">Toy Total: {totalToys}</div>
           {userRole === "admin" && (
@@ -153,6 +146,15 @@ const ToysByCompany = () => {
           )}
         </div>
       </div>
+
+      <Filters
+        filterOptions={filterOptions}
+        selectedFilters={selectedFilters}
+        setSelectedFilters={setSelectedFilters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        toys={toys}
+      />
 
       <ToysByCompanyContent
         key={updateTrigger}

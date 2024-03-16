@@ -8,8 +8,6 @@ const secretKey = process.env.SESSION_SECRET_KEY;
 
 router.post('/', (req, res, next) => {
 
-  console.log('Received a login request');
-
   passport.authenticate('local', (err, user, info) => {
     if (err) {
       return next(err);

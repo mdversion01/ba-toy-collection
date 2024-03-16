@@ -219,9 +219,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     const formData = new FormData();
     formData.append("image", imageFile); // Append the image file to FormData
 
-    console.log("Image file:", imageFile);
-    console.log("Form data:", formData);
-
     // Upload image to the server
     try {
       const imageUploadResponse = await axios.post(
@@ -235,9 +232,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
       );
 
       const { imageUrl, thumbnailUrl } = imageUploadResponse.data; // Get the uploaded image URL
-      console.log("Image URL:", imageUrl);
-      console.log("Thumbnail URL:", thumbnailUrl);
-
+      
       // Update the src and thumb states with the received URLs
       setSrc(imageUrl);
       setThumb(thumbnailUrl);
@@ -356,7 +351,6 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   const submitToysDatabase = async (toyData) => {
     const response = await axios.post(endpoints.API_URL + "toys", toyData);
     const newToy = response.data;
-    console.log(newToy);
   };
 
   const clearFormInputs = () => {

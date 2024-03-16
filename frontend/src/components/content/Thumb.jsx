@@ -1,37 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import AddedToy from './AddedToy';
-import IsVariant from './IsVariant';
-import ToyQuantity from './ToyQuantity';
-import ThumbModal from '../modal/ThumbModal';
+import AddedToy from "./AddedToy";
+import IsVariant from "./IsVariant";
+import ToyQuantity from "./ToyQuantity";
+import ThumbModal from "../modal/ThumbModal";
 import { endpoints } from "../../endpoints/Endpoints";
 
 const Thumb = ({ toy }) => {
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
   const [show, setShow] = useState(false);
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     async function fetchImage() {
       try {
-        const response = await axios.get(endpoints.IMG_URL + toy.src, {
-          responseType: 'arraybuffer', // Ensure response is treated as binary data
+        const response = await axios.get(endpoints.IMG_URL + toy.thumb, {
+          responseType: "arraybuffer", // Ensure response is treated as binary data
         });
         const base64 = btoa(
           new Uint8Array(response.data).reduce(
             (data, byte) => data + String.fromCharCode(byte),
-            ''
+            ""
           )
         );
         setImageUrl(`data:image/jpeg;base64,${base64}`);
       } catch (error) {
-        console.error('Error fetching image:', error);
-        setImageUrl(''); // Reset image URL if there's an error
+        console.error("Error fetching image:", error);
+        setImageUrl(""); // Reset image URL if there's an error
       }
     }
-  
+
     fetchImage();
-  }, [toy.src]);
+  }, [toy.thumb]);
 
   const handleModalOpen = () => {
     setShow(true);
@@ -48,7 +48,12 @@ const Thumb = ({ toy }) => {
         <AddedToy date={toy.dateadded} />
         <IsVariant variant={toy.variant} />
         <ToyQuantity number={toy.quantity} />
-        {imageUrl && <img src={imageUrl} alt={toy.name} style={{ height: '150px' }} />}
+
+        {toy.thumb && imageUrl ? (
+          <img src={imageUrl} alt={toy.name} />
+        ) : (
+          <img src="img/no-thumb.jpg" alt="No Thumb" />
+        )}
       </div>
       <ThumbModal
         show={show}

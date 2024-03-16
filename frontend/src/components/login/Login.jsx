@@ -16,7 +16,6 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post(endpoints.LOGIN_URL, formData);
-      console.log('Response data:', response.data);
       if (response.status === 200) {
         // Extract user's role from the token payload
         const { token } = response.data;
