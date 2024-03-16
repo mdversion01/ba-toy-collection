@@ -1,13 +1,17 @@
 require('dotenv').config();
 const db = require('./config/db');
 
+const http = require('http'); // Import the 'http' module for use with socket.io
+// Adjust the maximum number of sockets
+http.globalAgent.maxSockets = Infinity;
+
 const fs = require('fs/promises'); // Use fs.promises for async/await
 
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
 
-const http = require('http'); // Import the 'http' module for use with socket.io
+
 const socketIo = require('socket.io'); // Import socket.io
 const passport = require('./config/passport-config'); // Import your Passport configuration file
 const authRoutes = require('./routes/authRoutes'); // Import the authentication route module

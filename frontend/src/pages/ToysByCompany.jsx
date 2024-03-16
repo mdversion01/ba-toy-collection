@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { endpoints } from "../endpoints/Endpoints";
 import socketIOClient from "socket.io-client";
+import _ from "lodash";
 import ToysByCompanyContent from "../components/content/ToysByCompanyContent";
 import Filters from "../components/filters/Filters";
 import CustomPagination from "../components/pagination/CustomPagination";
@@ -28,9 +29,20 @@ const ToysByCompany = () => {
 
   const userRole = localStorage.getItem("userRole");
 
+  const fetchWithRetry = async (url, attempts) => {
+    for (let i = 0; i < attempts; i++) {
+      try {
+        return await axios.get(url);
+      } catch (error) {
+        if (i === attempts - 1) throw error;
+      }
+    }
+  };
+
   const fetchAndProcessToys = async () => {
     try {
-      const { data } = await axios.get(`${endpoints.API_URL}toys`);
+      // const { data } = await axios.get(`${endpoints.API_URL}toys`);
+      const { data } = await fetchWithRetry(`${endpoints.API_URL}toys`, 3);
       const sortedToys = processToysData(data);
 
       const allTotalPrice = sortedToys.reduce(
@@ -43,6 +55,7 @@ const ToysByCompany = () => {
       updateFilterOptions(sortedToys);
       filterAndSetToys(sortedToys);
     } catch (error) {
+      console.error("Failed to fetch toys after multiple attempts:", error);
       console.error("Error fetching toys:", error);
     }
   };
@@ -127,6 +140,12 @@ const ToysByCompany = () => {
     0
   );
 
+  const handleNameSearch = useCallback(_.debounce((searchTerm) => {
+    const filteredToys = toys.filter(toy => toy.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    setFilteredToys(filteredToys);
+  }, 300), [toys]); // Debounce delay is 300ms
+  
+
   return (
     <>
       <div className="page-title">
@@ -149,6 +168,7 @@ const ToysByCompany = () => {
 
       <Filters
         filterOptions={filterOptions}
+        handleNameSearch={handleNameSearch}
         selectedFilters={selectedFilters}
         setSelectedFilters={setSelectedFilters}
         onFilterChange={handleFilterChange}

@@ -1,9 +1,12 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
 
-const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) => {
+const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, handleNameSearch, toys }) => {
+
   const handleFilterChange = (filterField, value) => {
-    if (filterField === 'company' && value === '') {
+    if (filterField === 'name') {
+      handleNameSearch(value); // Assuming handleNameSearch is a prop passed to Filters
+    } else if (filterField === 'company' && value === '') {
       // Reset all filters when "All Companies" is selected
       setSelectedFilters({ company: '', brand: '', series: '', collection: '' });
     } else {
@@ -20,6 +23,15 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
   return (
     <div className="filter-section">
         <div className="row">
+          <div className="col">
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder="Search by name..."
+              onChange={(e) => handleFilterChange('name', e.target.value)}
+            />
+          </div>
+
           <div className="col">
             <Form.Select
               size="sm"
