@@ -16,15 +16,6 @@ const Header = ({ toys }) => {
   // Get the user's role from localStorage
   const userRole = localStorage.getItem('userRole');
 
-  // // Check if the userRole exists and is not null
-  // if (userRole) {
-  //   // Do something with the user's role (e.g., store it in state)
-  //   console.log('User role:', userRole);
-  // } else {
-  //   // Handle the case when the user's role is not found in localStorage
-  //   console.log('User role not found in localStorage');
-  // }
-
   // Function to handle user logout
   const handleLogout = () => {
     // Clear the user-related information from localStorage
@@ -34,11 +25,6 @@ const Header = ({ toys }) => {
     // Update the component's state to reflect the user's logout
     setUser(null);
 
-    // You can perform additional actions here, such as redirecting the user
-    // For example, you can use the React Router to navigate to a different route
-    // history.push('/login'); // Assuming you have set up React Router
-
-    console.log('User logged out');
   };
 
   // Gets the total number of toys

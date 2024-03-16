@@ -26,7 +26,7 @@ db.getConnection((err, connection) => {
     console.error('Error connecting to the database:', err);
     process.exit(1);
   } else {
-    console.log('Connected to the database');
+    // console.log('Connected to the database');
     connection.release(); // Release the connection after successful connection
   }
 });
@@ -40,7 +40,7 @@ db.on('error', (err) => {
       if (err) {
         console.error('Error reconnecting to the database:', err);
       } else {
-        console.log('Reconnected to the database');
+        // console.log('Reconnected to the database');
         connection.release();
       }
     });
