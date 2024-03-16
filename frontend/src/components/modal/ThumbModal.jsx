@@ -68,7 +68,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     }
 
     fetchImage();
-  }, [toy.src]);
+  }, [toy.src], [toy.thumb]);
 
   const [validationErrors, setValidationErrors] = useState({
     name: "",
@@ -258,11 +258,11 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
 
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
+  const [thumbnailUrl , setThumbnailUrl ] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    console.log("File:", file);
-
+    
     // Validate file type (allow only JPG, JPEG, and PNG)
     if (file && /\.(jpe?g|png)$/i.test(file.name)) {
       setImageFile(file);
@@ -292,16 +292,24 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
           try {
             // Delete the old image
             await axios.post(endpoints.API_URL + "delete-image", { src: toy.src });
-            console.log("Old image deleted successfully");
           } catch (error) {
             console.error("Error deleting old image:", error);
+            // Optionally, handle the error (e.g., notify the user)
+          }
+        }
+
+        if (toy.thumb) {      
+          try {
+            // Delete the old thumbnail
+            await axios.post(endpoints.API_URL + "delete-image", { src: toy.thumb });
+          } catch (error) {
+            console.error("Error deleting old thumbnail:", error);
             // Optionally, handle the error (e.g., notify the user)
           }
         }
   
         const formData = new FormData();
         formData.append("image", imageFile);
-        console.log("Form data:", formData);
   
         try {
           const imageUploadResponse = await axios.post(
@@ -315,8 +323,9 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
             }
           );
   
-          const imageUrl = imageUploadResponse.data.imageUrl; // Get the uploaded image URL
+          const { imageUrl, thumbnailUrl  } = imageUploadResponse.data; // Get the uploaded image URL
           updatedToyWithNewImage.src = imageUrl;
+          updatedToyWithNewImage.thumb = thumbnailUrl ;
         } catch (error) {
           console.error("Error uploading new image:", error);
           // Handle the error scenario if needed
@@ -332,8 +341,6 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       // Emit a socket event after the toy is updated
       socket.emit('toyUpdated', { toyId: updatedToy.id });
   
-      console.log("Response from server:", response.data); // Log the server response
-      console.log("Toy updated successfully");
       handleModalClose();
       setEditMode(false);
     } catch (error) {
@@ -378,7 +385,6 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       // Emit a socket event after the toy and its image are deleted
       socket.emit('toyDeleted', { toyId: id });
   
-      console.log("Toy and its image deleted successfully");
       handleModalClose();
     } catch (error) {
       console.error("Error deleting toy or its image", error);

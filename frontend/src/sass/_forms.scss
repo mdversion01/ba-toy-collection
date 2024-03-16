@@ -81,3 +81,26 @@
     font-size: 0.875rem;
   }
 }
+
+.suggestions-list {
+  max-height: 200px; /* Adjust based on your preference */
+  overflow-y: auto; /* Enables vertical scrolling */
+  width: 100%; /* Ensure the list matches the width of the input field */
+  position: absolute; /* Position the list just below the input field */
+  background-color: white; /* Background color for the list */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Optional: adds a shadow for depth */
+  border: 1px solid #ddd; /* Optional: adds a border around the list */
+  z-index: 1000; /* Ensure the list is above other content */
+}
+
+.suggestions-list li {
+  padding: 10px; /* Padding for each suggestion for better readability */
+  cursor: pointer; /* Changes the cursor to indicate clickable items */
+  list-style-type: none; /* Removes the default list item styling */
+}
+
+.suggestions-list li:hover {
+  background-color: #f0f0f0; /* Background color change on hover */
+}
+
+
