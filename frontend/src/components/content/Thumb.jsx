@@ -50,7 +50,7 @@ const Thumb = ({ toy }) => {
         <ToyQuantity number={toy.quantity} />
 
         {toy.thumb && imageUrl ? (
-          <img src={imageUrl} alt={toy.name} />
+          <img src={imageUrl} alt={toy.name} loading="lazy"/>
         ) : (
           <img src="img/no-thumb.jpg" alt="No Thumb" />
         )}

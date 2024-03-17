@@ -93,14 +93,15 @@ const ToysByCompany = () => {
   };
 
   const filterAndSetToys = (sortedToys) => {
-    const filtered = sortedToys.filter(
-      (toy) =>
-        (!selectedFilters.company || toy.company === selectedFilters.company) &&
-        (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
-        (!selectedFilters.series || toy.series === selectedFilters.series) &&
-        (!selectedFilters.collection ||
-          toy.collection === selectedFilters.collection)
-    );
+    const filtered = toys.filter(toy => {
+      const matchesName = selectedFilters.name ? toy.name.toLowerCase().includes(selectedFilters.name.toLowerCase()) : true;
+      const matchesCompany = selectedFilters.company ? toy.company === selectedFilters.company : true;
+      const matchesBrand = selectedFilters.brand ? toy.brand === selectedFilters.brand : true;
+      const matchesSeries = selectedFilters.series ? toy.series === selectedFilters.series : true;
+      const matchesCollection = selectedFilters.collection ? toy.collection === selectedFilters.collection : true;
+  
+      return matchesName && matchesCompany && matchesBrand && matchesSeries && matchesCollection;
+    });
 
     setFilteredToys(filtered);
   };
@@ -140,10 +141,14 @@ const ToysByCompany = () => {
     0
   );
 
+  useEffect(() => {
+    filterAndSetToys();
+  }, [selectedFilters, toys]); // Add `toys` to ensure the toys list is updated accordingly.
+
   const handleNameSearch = useCallback(_.debounce((searchTerm) => {
-    const filteredToys = toys.filter(toy => toy.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    setFilteredToys(filteredToys);
-  }, 300), [toys]); // Debounce delay is 300ms
+    setSelectedFilters(prevFilters => ({ ...prevFilters, name: searchTerm }));
+  }, 300), []); // Dependencies adjusted
+  
   
 
   return (
@@ -173,6 +178,7 @@ const ToysByCompany = () => {
         setSelectedFilters={setSelectedFilters}
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}
+        filteredToys={filteredToys}
         toys={toys}
       />
 
