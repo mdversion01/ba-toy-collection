@@ -52,7 +52,7 @@ const Thumb = ({ toy }) => {
         {toy.thumb && imageUrl ? (
           <img src={imageUrl} alt={toy.name} />
         ) : (
-          <img src="img/no-thumb.jpg" alt="No Thumb" />
+          <img src="img/no-thumb.jpg" alt="No Thumb" loading="lazy"/>
         )}
       </div>
       <ThumbModal

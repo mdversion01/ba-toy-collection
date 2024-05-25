@@ -35,50 +35,58 @@ function Registration() {
   };
 
   return (
-    <div>
-      <h2>Registration</h2>
-      <form className="registration" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            id="usernameInput" // Unique ID for username input
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="passwordInput" // Unique ID for password input
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
-        <div>
-          Password must be at least 6 characters long. Password must contain at
-          least one letter, one number, and one of these special characters,
-          @$!%*#?&
-        </div>
-        <div>
-          <label htmlFor="role">Role</label>
-          <select
-            id="roleSelect" // Unique ID for role select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-        <button type="submit">Register</button>
-      </form>
-      {successMessage && <p>{successMessage}</p>}
-      {error && <p>{error}</p>}
+    <div class="registration-wrapper">
+      <fieldset>
+        <legend>Registration</legend>
+        <form className="registration" onSubmit={handleSubmit}>
+          <div class="form-group">
+            <label htmlFor="usernameInput">Username</label>
+            <input
+              type="text"
+              id="usernameInput" // Unique ID for username input
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              class="form-control form-control-sm"
+            />
+          </div>
+          <div class="form-group">
+            <label htmlFor="passwordInput">Password</label>
+            <input
+              type="password"
+              id="passwordInput" // Unique ID for password input
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              class="form-control form-control-sm"
+            />
+            <div class="help-block">
+              Password must be at least 6 characters long. Password must contain
+              at least one letter, one number, and one of these special
+              characters, @$!%*#?&
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label htmlFor="role">Role</label>
+            <select
+              id="roleSelect" // Unique ID for role select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              class="form-control form-control-sm"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">
+            Register
+          </button>
+        </form>
+        {successMessage && <p>{successMessage}</p>}
+        {error && <p>{error}</p>}
+      </fieldset>
     </div>
   );
 }
