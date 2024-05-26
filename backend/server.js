@@ -1,12 +1,9 @@
 require('dotenv').config();
 const db = require('./config/db');
-
 const fs = require('fs/promises'); // Use fs.promises for async/await
-
 const express = require('express');
 const session = require('express-session');
 const cors = require('cors');
-
 const http = require('http'); // Import the 'http' module for use with socket.io
 const socketIo = require('socket.io'); // Import socket.io
 const passport = require('./config/passport-config'); // Import your Passport configuration file
@@ -16,6 +13,7 @@ const toysRoute = require('./routes/toysRoute'); // Import toysRoute module
 const multer = require('multer');
 const sharp = require('sharp');
 const path = require('path');
+const morgan = require('morgan'); // Add morgan
 
 const app = express();
 const server = http.createServer(app); // Create an HTTP server using Express
@@ -30,9 +28,10 @@ const io = socketIo(server, {
 app.use(cors({ 
   origin: 'http://localhost:3000',
   credentials: true,
- }));
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(morgan('combined')); // Use morgan for logging
 
 // Load the secret key from your secure environment (e.g., an environment variable)
 const secretKey = process.env.SESSION_SECRET_KEY;
@@ -97,13 +96,8 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       thumbnailUrl: `img/thumbnails/${req.file.filename}`
     });
 
-    // Log the path and filename of the uploaded image
-    // console.log('Image path:', req.file.path);
-    // console.log('Image filename:', req.file.filename);
-
   } catch (error) {
     console.error("Error processing image:", error);
-    console.error("Error processing image with sharp:", error);
     res.status(500).send('Error processing image');
   }
 });
@@ -131,7 +125,6 @@ io.on('connection', (socket) => {
 
   // Example: Handle 'itemAdded' event from the client
   socket.on('itemAdded', () => {
-    
     // Notify connected clients about the new item with a different event
     io.emit('itemAdded', { message: 'A new item has been added' });
   });
@@ -150,6 +143,7 @@ app.use((err, req, res, next) => {
 
 // Example authentication route
 app.use('/api/users/login', authRoutes);
+
 
 // Use the registrationRoutes middleware for the '/api/register' route
 app.use('/api/users/register', registrationRoutes); // Use the route path where you want to handle user registration
