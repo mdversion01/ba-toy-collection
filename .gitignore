@@ -9,8 +9,16 @@ node_modules
 /node_modules
 /dist
 /frontend/dist
+/frontend/json/
+/frontend/json/users.json
+/frontend/json/toys.json
+frontend/json/
+frontend/json/users.json
+frontend/json/toys.json
 /backend/dist
 frontend/dist
+frontend/hashPassword.js
+/frontend/hashPassword.js
 backend/dist
 /.pnp
 .pnp.js

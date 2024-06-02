@@ -1,31 +1,41 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import jwt_decode from 'jwt-decode';
-import { endpoints } from '../../endpoints/Endpoints';
+import usersData from '../../json/users.json';
+import bcrypt from 'bcryptjs'; // Import bcryptjs for hashing passwords
 
 function Login() {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const sanitizeInput = (input) => {
+    const element = document.createElement('div');
+    element.innerText = input;
+    return element.innerHTML;
   };
 
-  const handleSubmit = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: sanitizeInput(value) });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(endpoints.LOGIN_URL, formData);
-      if (response.status === 200) {
-        // Extract user's role from the token payload
-        const { token } = response.data;
-        const { role } = jwt_decode(token);
-  
+      const user = usersData.find(
+        (user) =>
+          user.username === formData.username &&
+          bcrypt.compareSync(formData.password, user.password)
+      );
+
+      if (user) {
+        const token = "mockToken"; // Mock token since we're not using a real backend
+        const role = user.role;
+
         // Store the token and user's role in localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('userRole', role);
-  
+
         // Redirect to the desired page or update state to indicate successful login
+        // For example, you can use history.push('/dashboard') if you're using react-router
       } else {
         setError('Invalid username or password');
       }
@@ -33,7 +43,7 @@ function Login() {
       setError('An error occurred during login');
     }
   };
-  
+
   return (
     <div>
       <form className="login" onSubmit={handleSubmit}>

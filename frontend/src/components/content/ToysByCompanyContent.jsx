@@ -24,23 +24,23 @@ const ToysByCompanyContent = ({ rowHeight, currentToys, toys, currentPage, toysP
   const groupToysByCompany = groupToysByProperty(currentToys, "company");
   const sortedCompanies = Object.keys(groupToysByCompany).sort((a, b) => a.localeCompare(b));
 
-  const groupToysByBrand = (toys, company) => {
+  const groupToysByBrand = (company) => {
     const companyToys = groupToysByCompany[company];
     return groupToysByProperty(companyToys, "brand");
   };
 
-  const groupToysBySeries = (toys, company, brand) => {
-    const brandToys = groupToysByBrand(toys, company)[brand];
+  const groupToysBySeries = (company, brand) => {
+    const brandToys = groupToysByBrand(company)[brand];
     return groupToysByProperty(brandToys, "series");
   };
 
-  const groupToysByCollection = (toys, company, brand, series) => {
-    const seriesToys = groupToysBySeries(toys, company, brand)[series];
+  const groupToysByCollection = (company, brand, series) => {
+    const seriesToys = groupToysBySeries(company, brand)[series];
     return groupToysByProperty(seriesToys, "collection");
   };
 
-  const groupToysByCompleted = (toys, company, brand, series, collection) => {
-    const collectionToys = groupToysByCollection(toys, company, brand, series)[collection];
+  const groupToysByCompleted = (company, brand, series, collection) => {
+    const collectionToys = groupToysByCollection(company, brand, series)[collection];
     return groupToysByProperty(collectionToys, "completed");
   };
 
@@ -50,22 +50,23 @@ const ToysByCompanyContent = ({ rowHeight, currentToys, toys, currentPage, toysP
         {sortedCompanies.map((company, i) => (
           <React.Fragment key={i}>
             <div className="company-header">{company}</div>
-            {Object.keys(groupToysByBrand(toys, company))
+            {Object.keys(groupToysByBrand(company))
               .sort((a, b) => a.localeCompare(b))
               .map((brand, i) => (
                 <React.Fragment key={i}>
-                  {Object.keys(groupToysBySeries(toys, company, brand))
+                  {Object.keys(groupToysBySeries(company, brand))
                     .sort((a, b) => a.localeCompare(b))
                     .map((series, i) => (
                       <React.Fragment key={i}>
-                        {Object.keys(groupToysByCollection(toys, company, brand, series))
+                        {Object.keys(groupToysByCollection(company, brand, series))
                           .sort((a, b) => a.localeCompare(b))
                           .map((collection, i) => (
                             <React.Fragment key={i}>
-                              {Object.keys(groupToysByCompleted(toys, company, brand, series, collection))
+                              {Object.keys(groupToysByCompleted(company, brand, series, collection))
                                 .sort((a, b) => a.localeCompare(b))
                                 .map((completed, i) => {
-                                  const totalToys = groupToysByCompleted(toys, company, brand, series, collection)[completed].reduce((a, v) => a + v.quantity, 0);
+                                  const completedToys = groupToysByCompleted(company, brand, series, collection)[completed];
+                                  const totalToys = completedToys.reduce((sum, toy) => sum + parseInt(toy.quantity), 0);
                                   return (
                                     <React.Fragment key={i}>
                                       <div className="titles-containers">
@@ -81,7 +82,7 @@ const ToysByCompanyContent = ({ rowHeight, currentToys, toys, currentPage, toysP
                                         </div>
                                       </div>
                                       <div className="thumbs_wrapper">
-                                        {groupToysByCompleted(toys, company, brand, series, collection)[completed].map((toy) => (
+                                        {completedToys.map((toy) => (
                                           <Thumb key={toy.id} toy={toy} rowHeight={rowHeight} />
                                         ))}
                                       </div>

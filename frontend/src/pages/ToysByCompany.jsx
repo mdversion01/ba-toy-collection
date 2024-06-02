@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { endpoints } from "../endpoints/Endpoints";
-import socketIOClient from "socket.io-client";
+import toysData from "../json/toys.json";
 import ToysByCompanyContent from "../components/content/ToysByCompanyContent";
 import Filters from "../components/filters/Filters";
 import CustomPagination from "../components/pagination/CustomPagination";
@@ -28,17 +26,22 @@ const ToysByCompany = () => {
 
   const userRole = localStorage.getItem("userRole");
 
-  const fetchAndProcessToys = async () => {
+  const fetchAndProcessToys = () => {
     try {
-      const { data } = await axios.get(`${endpoints.API_URL}toys`);
+      const data = toysData;
       const sortedToys = processToysData(data);
 
-      const allTotalPrice = sortedToys.reduce(
-        (acc, toy) => acc + toy.price * toy.quantity,
+      const totalQuantity = sortedToys.reduce(
+        (acc, toy) => acc + Number(toy.quantity),
         0
       );
-      setAllTotalPrice(allTotalPrice);
 
+      const allTotalPrice = sortedToys.reduce(
+        (acc, toy) => acc + Number(toy.price) * Number(toy.quantity),
+        0
+      );
+
+      setAllTotalPrice(allTotalPrice);
       setToys(sortedToys);
       updateFilterOptions(sortedToys);
       filterAndSetToys(sortedToys);
@@ -49,11 +52,6 @@ const ToysByCompany = () => {
 
   useEffect(() => {
     fetchAndProcessToys();
-    const socket = socketIOClient("http://localhost:3002");
-    socket.on("itemAdded", fetchAndProcessToys);
-    socket.on("updateItem", fetchAndProcessToys);
-
-    return () => socket.disconnect();
   }, [selectedFilters, updateTrigger]);
 
   const processToysData = (toysData) => {
@@ -85,8 +83,7 @@ const ToysByCompany = () => {
         (!selectedFilters.company || toy.company === selectedFilters.company) &&
         (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
         (!selectedFilters.series || toy.series === selectedFilters.series) &&
-        (!selectedFilters.collection ||
-          toy.collection === selectedFilters.collection)
+        (!selectedFilters.collection || toy.collection === selectedFilters.collection)
     );
 
     setFilteredToys(filtered);
@@ -104,7 +101,7 @@ const ToysByCompany = () => {
     setCurrentPage(1);
   }, [selectedFilters]);
 
-  const totalToys = toys.reduce((a, v) => a + v.quantity, 0);
+  const totalToys = filteredToys.reduce((acc, toy) => acc + Number(toy.quantity), 0);
 
   // Function to handle page change
   const handlePageChange = (pageNumber) => {
@@ -123,7 +120,7 @@ const ToysByCompany = () => {
 
   // Calculate the total value of the current page's toys
   let currentPageValue = currentToys.reduce(
-    (acc, toy) => acc + toy.price * toy.quantity,
+    (acc, toy) => acc + Number(toy.price) * Number(toy.quantity),
     0
   );
 

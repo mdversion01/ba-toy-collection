@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import ModalAddContent from "../modal/ModalAddContent";
 import Login from "../login/Login";
 
 const Header = ({ toys }) => {
@@ -28,7 +27,7 @@ const Header = ({ toys }) => {
   };
 
   // Gets the total number of toys
-  const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
+  // const totalToys = toys.reduce((a, v) => a = a + v.quantity, 0);
 
   return (
     <header className="headerStyle">
@@ -42,13 +41,6 @@ const Header = ({ toys }) => {
               <Link to="/" className="nav-link">Home</Link>
               <Link to="/toy-list" className="nav-link">All Toys</Link>
               <Link to="/toys-by-company" className="nav-link">Toys by Company</Link>
-              <Link to="/registration" className="nav-link">Registration</Link>
-              {userRole === 'admin' && (
-                <ModalAddContent
-                  buttonText="Add New Toy"
-                  title="Add New Toy"
-                />
-              )}
             </Nav>
             <div className="login">
               {userRole ? (

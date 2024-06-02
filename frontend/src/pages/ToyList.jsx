@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { endpoints } from "../endpoints/Endpoints";
-import socketIOClient from "socket.io-client";
+import toysData from "../json/toys.json";
 import ToyListContent from "../components/content/ToyListContent";
 import Filters from "../components/filters/Filters";
 import CustomPagination from "../components/pagination/CustomPagination";
@@ -10,7 +8,6 @@ const ToysList = () => {
   const [toys, setToys] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [toysPerPage] = useState(50); // Number of toys to show per page
-  // Add state for total price and quantity
   const [allTotalQuantity, setAllTotalQuantity] = useState(0);
   const [allTotalPrice, setAllTotalPrice] = useState(0);
   const [filterOptions, setFilterOptions] = useState({
@@ -30,21 +27,17 @@ const ToysList = () => {
   const userRole = localStorage.getItem("userRole");
 
   useEffect(() => {
-    const fetchToys = async () => {
+    const fetchToys = () => {
       try {
-        const response = await axios.get(endpoints.API_URL + "toys");
-        const sortedToys = response.data.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
+        const data = toysData;
+        const sortedToys = data.sort((a, b) => a.name.localeCompare(b.name));
         setToys(sortedToys);
 
         // Extract filter options
         const companies = [...new Set(sortedToys.map((toy) => toy.company))];
         const brands = [...new Set(sortedToys.map((toy) => toy.brand))];
         const series = [...new Set(sortedToys.map((toy) => toy.series))];
-        const collections = [
-          ...new Set(sortedToys.map((toy) => toy.collection)),
-        ];
+        const collections = [...new Set(sortedToys.map((toy) => toy.collection))];
 
         // Sort filter options alphabetically
         companies.sort();
@@ -64,8 +57,8 @@ const ToysList = () => {
         let totalQuantity = 0;
         let totalPrice = 0;
         sortedToys.forEach((toy) => {
-          totalQuantity += toy.quantity;
-          totalPrice += toy.price * toy.quantity;
+          totalQuantity += Number(toy.quantity);
+          totalPrice += Number(toy.price) * Number(toy.quantity);
         });
 
         setAllTotalQuantity(totalQuantity);
@@ -78,13 +71,6 @@ const ToysList = () => {
     };
 
     fetchToys();
-    const socket = socketIOClient("http://localhost:3002");
-    socket.on("itemAdded", fetchToys);
-    socket.on("updateItem", fetchToys);
-
-    return () => {
-      socket.disconnect();
-    };
   }, []);
 
   useEffect(() => {
@@ -97,10 +83,7 @@ const ToysList = () => {
         (!selectedFilters.company || toy.company === selectedFilters.company) &&
         (!selectedFilters.brand || toy.brand === selectedFilters.brand) &&
         (!selectedFilters.series || toy.series === selectedFilters.series) &&
-        (!selectedFilters.collection ||
-          toy.collection === selectedFilters.collection) &&
-        (!selectedFilters.completed ||
-          toy.completed === selectedFilters.completed)
+        (!selectedFilters.collection || toy.collection === selectedFilters.collection)
     );
 
     setFilteredToys(filtered);
@@ -119,11 +102,7 @@ const ToysList = () => {
   }, [selectedFilters]);
 
   // Calculate the total price for the currently displayed toys
-  let totalQuantity = 0;
-  let totalPrice = 0;
-
-  // Gets the total number of toys
-  const totalToys = toys.reduce((a, v) => (a = a + v.quantity), 0);
+  const totalToys = filteredToys.reduce((a, v) => a + Number(v.quantity), 0);
 
   // Function to handle page change
   const handlePageChange = (pageNumber) => {
@@ -142,14 +121,9 @@ const ToysList = () => {
 
   // Now that currentToys is defined, calculate the total value of the current page's toys
   let currentPageValue = currentToys.reduce(
-    (acc, toy) => acc + toy.price * toy.quantity,
+    (acc, toy) => acc + Number(toy.price) * Number(toy.quantity),
     0
   );
-
-  currentToys.forEach((toy) => {
-    totalQuantity += toy.quantity;
-    totalPrice += toy.price * toy.quantity;
-  });
 
   return (
     <>
@@ -172,7 +146,7 @@ const ToysList = () => {
                 Collection Total Value: ${allTotalPrice.toFixed(2)}
               </div>
               <div className="current-page">
-                Current Page Value: ${totalPrice.toFixed(2)}
+                Current Page Value: ${currentPageValue.toFixed(2)}
               </div>
             </>
           )}

@@ -18,9 +18,9 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
 
 
   return (
-    <div className="filter-section">
+    <div className="filter-section container-fluid">
         <div className="row">
-          <div className="col">
+          <div className="col-md-2 col-sm-12">
             <Form.Select
               size="sm"
               aria-label="Companies"
@@ -35,7 +35,7 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
               ))}
             </Form.Select>
           </div>
-          <div className="col">
+          <div className="col-md-2 col-sm-12">
             <Form.Select
               size="sm"
               aria-label="Brands" value={selectedFilters.brand}
@@ -51,7 +51,7 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
                 ))}
             </Form.Select>
           </div>
-          <div className="col">
+          <div className="col-md-2 col-sm-12">
             <Form.Select
               size="sm"
               aria-label="Series"
@@ -80,7 +80,7 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
                 ))}
             </Form.Select>
           </div>
-          <div className="col">
+          <div className="col-md-2 col-sm-12">
             <Form.Select
               size="sm"
               aria-label="Collections"
@@ -110,7 +110,7 @@ const Filters = ({ filterOptions, selectedFilters, setSelectedFilters, toys }) =
                 ))}
             </Form.Select>
           </div>
-          <div className="col">
+          <div className="col-md-2 col-sm-12">
             <button
               className="btn btn-primary btn-sm"
               onClick={() => {

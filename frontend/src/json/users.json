@@ -1,0 +1,14 @@
+[
+    {
+        "id": "1",
+        "username": "mdversion01",
+        "password": "$2a$10$7sk4JtIPnqX3oU0QE6D5vOv7YNSJgPQnb6jFOcf8jjatDPPYdlHXy",
+        "role": "admin"
+    },
+    {
+        "id": "2",
+        "username": "guestUser",
+        "password": "$2a$10$bcyrA57ijGRwSaVxxTPnr.RV9DP3rnF5g5GI/0dY/89GRPLao8MzW",
+        "role": "user"
+    }
+]
