@@ -21998,5 +21998,25 @@
         "quantity": "1",
         "completed": "No",
         "dateadded": "2024-05-31T22:09:23.390Z"
+    },
+    {
+        "id": "1209",
+        "name": "Brainiac",
+        "src": "img\/1717963368717.jpg",
+        "thumb": "img\/thumbnails\/1717963368717.jpg",
+        "brand": "DC",
+        "company": "McFarlene Toys",
+        "year": "2024",
+        "series": "Super Powers",
+        "collection": "Wave 7",
+        "variant": "No",
+        "reissue": "No",
+        "price": "15",
+        "toycondition": "Mint",
+        "upc": "7 87926157994",
+        "notes": "Mint in package",
+        "quantity": "1",
+        "completed": "No",
+        "dateadded": "2024-06-09T20:02:45.857Z"
     }
 ]
