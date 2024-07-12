@@ -209,6 +209,15 @@
   box-shadow: 0 5px 5px 0px rgba(0, 0, 0, 0.5);
 }
 
+.new-toys {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 15px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
 .registration-wrapper {
   display: flex;
   justify-content: center;

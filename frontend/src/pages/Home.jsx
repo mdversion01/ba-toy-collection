@@ -1,4 +1,5 @@
 import React from "react";
+import NewestToys from "../components/content/NewestToys";
 
 const Home = () => {
   return (
@@ -18,7 +19,11 @@ const Home = () => {
       <p>So, I've organized everything and posted it here. Toys can be viewed through the navigation above. You either access all the toys in 'All Toys' and filter through them or they can be viewed in 'Toys by Company', which organizes all the toys by company and they can still be filtered through.</p>
 
       <p>I do own all of these toys and I've taken every picture myself, except for any carded figure that remains in a sealed package and for that I used the image from that toy's website. Each toy is mint or near mint in the original packaging unless otherwise noted.</p>
+      
 
+      <div>
+      <NewestToys />
+      </div>
     </div>
   );
 }
