@@ -42,7 +42,6 @@
   padding: 10px 20px 20px;
   margin: 15px;
   background-color: #f1f7fc;
-  overflow: auto;
 }
 
 .totals {
@@ -208,11 +207,15 @@
   position: relative;
   margin: 0.5rem 0.25rem;
   box-shadow: 0 5px 5px 0px rgba(0, 0, 0, 0.5);
-  border: 1px solid transparent;
+}
 
-  &:hover {
-    border: 1px solid #0d6efd;
-  }
+.new-toys {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 15px;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  background-color: #fff;
 }
 
 .registration-wrapper {

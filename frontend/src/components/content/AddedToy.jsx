@@ -4,7 +4,7 @@ import moment from 'moment';
 const AddedToy = ({ date }) => {
 
   let expDate = moment(date)
-    .add(14, 'd') //replace 5 with number of days you want to add
+    .add(30, 'd') //replace 5 with number of days you want to add
     .toDate(); //convert it to a Javascript Date Object if you like
 
   let currentDate = moment().toDate();
