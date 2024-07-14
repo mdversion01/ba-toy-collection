@@ -11,7 +11,6 @@ const NewestToys = () => {
     const fetchNewToys = () => {
       try {
         const toys = toysData;
-        // const toys = response.data;
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
@@ -20,7 +19,9 @@ const NewestToys = () => {
           return toyDate >= thirtyDaysAgo;
         });
 
-        setNewToys(filteredToys);
+        const sortedToys = filteredToys.sort((a, b) => a.name.localeCompare(b.name));
+
+        setNewToys(sortedToys);
       } catch (error) {
         console.error("Error fetching toys:", error);
       } finally {
@@ -41,12 +42,12 @@ const NewestToys = () => {
 
   return (
     <>
-    <h2>Newly Added Toys</h2>
-    <div className="new-toys">
-      {newToys.map((toy) => (
-        <Thumb key={toy.id} toy={toy} />
-      ))}
-    </div>
+      <h2>Newly Added Toys</h2>
+      <div className="new-toys">
+        {newToys.map((toy) => (
+          <Thumb key={toy.id} toy={toy} />
+        ))}
+      </div>
     </>
   );
 };
