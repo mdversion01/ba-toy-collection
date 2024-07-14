@@ -21,7 +21,9 @@ const NewestToys = () => {
           return toyDate >= thirtyDaysAgo;
         });
 
-        setNewToys(filteredToys);
+        const sortedToys = filteredToys.sort((a, b) => a.name.localeCompare(b.name));
+
+        setNewToys(sortedToys);
       } catch (error) {
         console.error("Error fetching toys:", error);
       } finally {
