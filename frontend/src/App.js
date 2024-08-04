@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'; // Import Routes from 'react-router-dom' instead of Switch
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 import Header from './components/header/Header';
 import Home from './pages/Home';
@@ -10,12 +10,10 @@ import Registration from './pages/Registration';
 import { endpoints } from "./endpoints/Endpoints";
 
 const App = () => {
-
   const [toys, setToys] = useState([]);
 
   useEffect(() => {
-    // Fetch data from the API endpoint using Axios
-    axios.get(endpoints.API_URL + 'toys/') // Replace '/api/toys' with the actual endpoint URL
+    axios.get(endpoints.API_URL + 'toys/')
       .then((response) => {
         setToys(response.data);
       })
@@ -29,18 +27,28 @@ const App = () => {
       <div className="layout">
         <Header toys={toys} />
         <div className="main-wrapper">
-        <div className="main">
-        <Routes> {/* Use Routes instead of Switch */}
-          <Route exact path="/" element={<Home />} />
-          <Route path="/toy-list" element={<ToyList />} /> {/* Use element prop instead of component */}
-          <Route path="/toys-by-company" element={<ToysByCompany />} />
-          <Route path="/registration" element={<Registration />} />
-          {/* Add more routes using Route */}
-        </Routes>
-        </div>
+          <MainContent />
         </div>
       </div>
     </Router>
+  );
+};
+
+const MainContent = () => {
+  const location = useLocation();
+
+  const mainClassName = location.pathname === "/" ? "main scroll" : "main";
+
+  return (
+    <div className={mainClassName}>
+      <Routes>
+        <Route exact path="/" element={<Home />} />
+        <Route path="/toy-list" element={<ToyList />} />
+        <Route path="/toys-by-company" element={<ToysByCompany />} />
+        <Route path="/registration" element={<Registration />} />
+        {/* Add more routes using Route */}
+      </Routes>
+    </div>
   );
 };
 
