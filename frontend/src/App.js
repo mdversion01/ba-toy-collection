@@ -11,7 +11,7 @@ const App = () => {
   const [toys, setToys] = useState([]);
 
   useEffect(() => {
-    // Fetch data from the local JSON file
+  // Fetch data from the local JSON file
     setToys(toysData);
   }, []);
 

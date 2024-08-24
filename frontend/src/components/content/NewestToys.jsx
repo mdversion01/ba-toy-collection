@@ -48,6 +48,7 @@ const NewestToys = () => {
           <Thumb key={toy.id} toy={toy} />
         ))}
       </div>
+
     </>
   );
 };

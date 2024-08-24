@@ -13,9 +13,42 @@ function Registration() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const validatePassword = (password) => {
+    const minLength = 6;
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const specialCharRegex = /[@$!%*#?&]/;
+    const hasSpecialChar = specialCharRegex.test(password);
+
+    if (password.length < minLength) {
+      return `Password must be at least ${minLength} characters long.`;
+    }
+    if (!hasLetter) {
+      return "Password must contain at least one letter.";
+    }
+    if (!hasNumber) {
+      return "Password must contain at least one number.";
+    }
+    if (!hasSpecialChar) {
+      return "Password must contain at least one of these special characters: @$!%*#?&.";
+    }
+    const invalidSpecialChars = password.split('').filter(char => /[^a-zA-Z0-9@$!%*#?&]/.test(char));
+    if (invalidSpecialChars.length > 0) {
+      return `Password contains invalid special characters: ${invalidSpecialChars.join(', ')}`;
+    }
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
     try {
+      console.log("Form Data:", formData);
+
       // Make a POST request to your backend for registration
       const response = await axios.post(endpoints.USERS_REGISTER_URL, formData);
 
@@ -25,21 +58,22 @@ function Registration() {
 
         // Clear the form fields by resetting the formData state
         setFormData(initialFormData);
+        setError(""); // Clear any previous error messages
       } else {
         setError("Registration failed");
       }
     } catch (error) {
-      console.error("Registration Error:", error);
-      setError("An error occurred during registration");
+      console.error("Registration Error:", error.response?.data); // Log detailed error response
+      setError(error.response?.data?.message || "An error occurred during registration");
     }
   };
 
   return (
-    <div class="registration-wrapper">
+    <div className="registration-wrapper">
       <fieldset>
         <legend>Registration</legend>
         <form className="registration" onSubmit={handleSubmit}>
-          <div class="form-group">
+          <div className="form-group">
             <label htmlFor="usernameInput">Username</label>
             <input
               type="text"
@@ -47,10 +81,10 @@ function Registration() {
               name="username"
               value={formData.username}
               onChange={handleChange}
-              class="form-control form-control-sm"
+              className="form-control form-control-sm"
             />
           </div>
-          <div class="form-group">
+          <div className="form-group">
             <label htmlFor="passwordInput">Password</label>
             <input
               type="password"
@@ -58,29 +92,29 @@ function Registration() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              class="form-control form-control-sm"
+              className="form-control form-control-sm"
             />
-            <div class="help-block">
+            <div className="help-block">
               Password must be at least 6 characters long. Password must contain
               at least one letter, one number, and one of these special
               characters, @$!%*#?&
             </div>
           </div>
 
-          <div class="form-group">
+          <div className="form-group">
             <label htmlFor="role">Role</label>
             <select
               id="roleSelect" // Unique ID for role select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              class="form-control form-control-sm"
+              className="form-control form-control-sm"
             >
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm">
+          <button type="submit" className="btn btn-primary btn-sm">
             Register
           </button>
         </form>
