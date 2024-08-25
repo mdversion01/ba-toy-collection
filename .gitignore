@@ -10,7 +10,7 @@ node_modules
 /dist
 /frontend/dist
 /backend/dist
-/backend/img
+
 frontend/dist
 backend/dist
 /.pnp
