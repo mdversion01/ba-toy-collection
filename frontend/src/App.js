@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'; // Import Routes from 'react-router-dom' instead of Switch
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/header/Header';
 import Home from './pages/Home';
 import ToyList from './pages/ToyList';
 import ToysByCompany from './pages/ToysByCompany';
 import Registration from './pages/Registration';
-import toysData from "./json/toys.json"; // Import the local JSON file
+import toysData from "./json/toys.json";
 
 const App = () => {
   const [toys, setToys] = useState([]);
