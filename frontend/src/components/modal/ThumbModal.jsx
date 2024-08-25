@@ -21,7 +21,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
   const [selectedSeries, setSelectedSeries] = useState([]);
   const [collections, setCollections] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState([]);
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
   const [socket, setSocket] = useState(null);
 
   // Get the user's role from localStorage
@@ -258,7 +258,7 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
 
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
-  const [thumbnailUrl , setThumbnailUrl ] = useState("");
+  // const [thumbnailUrl , setThumbnailUrl ] = useState("");
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -333,7 +333,11 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       }
   
       // Perform the PUT request with the updatedToyWithNewImage data
-      const response = await axios.put(
+      // const response = await axios.put(
+      //   endpoints.API_URL + "toys/" + updatedToy.id,
+      //   updatedToyWithNewImage
+      // );
+      await axios.put(
         endpoints.API_URL + "toys/" + updatedToy.id,
         updatedToyWithNewImage
       );

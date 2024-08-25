@@ -19,7 +19,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   const [price, setPrice] = useState("0");
   const [toycondition, setToyCondition] = useState("");
   const [upc, setUpc] = useState("123456789");
-  const [dateadded, setDateAdded] = useState("");
+  // const [dateadded, setDateAdded] = useState("");
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState("1");
   const [errors, setErrors] = useState({});
@@ -349,8 +349,9 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
   };
 
   const submitToysDatabase = async (toyData) => {
-    const response = await axios.post(endpoints.API_URL + "toys", toyData);
-    const newToy = response.data;
+    await axios.post(endpoints.API_URL + "toys", toyData);
+    // const response = await axios.post(endpoints.API_URL + "toys", toyData);
+    // const newToy = response.data;
   };
 
   const clearFormInputs = () => {
@@ -378,7 +379,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     setPrice("0");
     setToyCondition("");
     setUpc("123456789");
-    setDateAdded(`${currentDate}`);
+    // setDateAdded(`${currentDate}`);
     setNotes("");
     setQuantity("1");
     setCompleted("No"); // Set completed to false
@@ -483,10 +484,10 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
     };
   }, [socket]);
 
-  useEffect(() => {
-    const date = new Date();
-    setDateAdded(date);
-  }, []);
+  // useEffect(() => {
+  //   const date = new Date();
+  //   setDateAdded(date);
+  // }, []);
 
   return (
     <>
@@ -722,7 +723,7 @@ const ModalAddContent = ({ onAddToy, buttonText }) => {
             <Form.Control
               type="hidden"
               value={currentDate}
-              onChange={(e) => setDateAdded(e.target.value)}
+              // onChange={(e) => setDateAdded(e.target.value)}
             />
           </Form>
         </Modal.Body>
