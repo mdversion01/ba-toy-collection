@@ -37,7 +37,8 @@ const Header = ({ toys }) => {
           <BATCLogo />
         </div>
         <Navbar bg="dark" data-bs-theme="dark" expand="lg">
-          <Container fluid>
+          <Container fluid><Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Link to="/" className="nav-link">Home</Link>
               <Link to="/toy-list" className="nav-link">All Toys</Link>
@@ -60,6 +61,8 @@ const Header = ({ toys }) => {
                 <Login />
               )}
             </div>
+          </Navbar.Collapse>
+
           </Container>
         </Navbar>
 

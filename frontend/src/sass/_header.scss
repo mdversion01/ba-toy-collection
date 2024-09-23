@@ -49,6 +49,16 @@ header {
   margin: 0 1rem;
 };
 
+.add-btn {
+  width: 100px;
+  white-space: nowrap;
+}
+
+.navbar-toggler-icon {
+  width: 1em !important;
+  height: 1em !important;
+}
+
 .total-count {
   color: var(--bs-nav-link-color);
   color: #000;
