@@ -47,28 +47,31 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     };
   }, []); // Empty dependency array ensures that the effect runs only once when the component mounts
 
-
-  useEffect(() => {
-    async function fetchImage() {
-      try {
-        const response = await axios.get(endpoints.IMG_URL + toy.src, {
-          responseType: "arraybuffer", // Ensure response is treated as binary data
-        });
-        const base64 = btoa(
-          new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ""
-          )
-        );
-        setImageUrl(`data:image/jpeg;base64,${base64}`);
-      } catch (error) {
-        console.error("Error fetching image:", error);
-        setImageUrl(""); // Reset image URL if there's an error
+  useEffect(
+    () => {
+      async function fetchImage() {
+        try {
+          const response = await axios.get(endpoints.IMG_URL + toy.src, {
+            responseType: "arraybuffer", // Ensure response is treated as binary data
+          });
+          const base64 = btoa(
+            new Uint8Array(response.data).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ""
+            )
+          );
+          setImageUrl(`data:image/jpeg;base64,${base64}`);
+        } catch (error) {
+          console.error("Error fetching image:", error);
+          setImageUrl(""); // Reset image URL if there's an error
+        }
       }
-    }
 
-    fetchImage();
-  }, [toy.src], [toy.thumb]);
+      fetchImage();
+    },
+    [toy.src],
+    [toy.thumb]
+  );
 
   const [validationErrors, setValidationErrors] = useState({
     name: "",
@@ -262,13 +265,15 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    
+
     // Validate file type (allow only JPG, JPEG, and PNG)
     if (file && /\.(jpe?g|png)$/i.test(file.name)) {
       setImageFile(file);
     } else {
       // Handle invalid file type error
-      console.error('Invalid file type. Please upload a JPG, JPEG, or PNG file.');
+      console.error(
+        "Invalid file type. Please upload a JPG, JPEG, or PNG file."
+      );
       // Clear the selected file
       e.target.value = null;
     }
@@ -282,35 +287,41 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
       setValidationErrors(validationErrors);
       return;
     }
-  
+
     try {
       let updatedToyWithNewImage = { ...updatedToy };
-  
+
       if (imageFile) {
         // Check if there's an existing image to delete
         if (toy.src) {
           try {
-            // Delete the old image
-            await axios.post(endpoints.API_URL + "delete-image", { src: toy.src });
+            await axios.post(endpoints.API_URL + "delete-image", {
+              src: toy.src,
+            });
           } catch (error) {
-            console.error("Error deleting old image:", error);
-            // Optionally, handle the error (e.g., notify the user)
+            console.error(
+              "Error deleting old image:",
+              error.response?.data || error.message
+            );
           }
         }
 
-        if (toy.thumb) {      
+        if (toy.thumb) {
           try {
-            // Delete the old thumbnail
-            await axios.post(endpoints.API_URL + "delete-image", { src: toy.thumb });
+            await axios.post(endpoints.API_URL + "delete-image", {
+              src: toy.thumb,
+            });
           } catch (error) {
-            console.error("Error deleting old thumbnail:", error);
-            // Optionally, handle the error (e.g., notify the user)
+            console.error(
+              "Error deleting old thumbnail:",
+              error.response?.data || error.message
+            );
           }
         }
-  
+
         const formData = new FormData();
         formData.append("image", imageFile);
-  
+
         try {
           const imageUploadResponse = await axios.post(
             endpoints.API_URL + "upload-image",
@@ -322,35 +333,50 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
               },
             }
           );
-  
-          const { imageUrl, thumbnailUrl  } = imageUploadResponse.data; // Get the uploaded image URL
-          updatedToyWithNewImage.src = imageUrl;
-          updatedToyWithNewImage.thumb = thumbnailUrl ;
+
+          if (imageUploadResponse.status === 200) {
+            const { imageUrl, thumbnailUrl } = imageUploadResponse.data;
+            updatedToyWithNewImage.src = imageUrl;
+            updatedToyWithNewImage.thumb = thumbnailUrl;
+          } else {
+            throw new Error(
+              "Image upload failed with status " + imageUploadResponse.status
+            );
+          }
         } catch (error) {
-          console.error("Error uploading new image:", error);
-          // Handle the error scenario if needed
+          console.error(
+            "Error uploading new image:",
+            error.response?.data || error.message
+          );
+          return; // Exit if image upload fails
         }
       }
-  
-      // Perform the PUT request with the updatedToyWithNewImage data
-      // const response = await axios.put(
-      //   endpoints.API_URL + "toys/" + updatedToy.id,
-      //   updatedToyWithNewImage
-      // );
-      await axios.put(
-        endpoints.API_URL + "toys/" + updatedToy.id,
-        updatedToyWithNewImage
-      );
-  
-      // Emit a socket event after the toy is updated
-      socket.emit('toyUpdated', { toyId: updatedToy.id });
-  
-      handleModalClose();
-      setEditMode(false);
+
+      // Perform the PUT request to update the toy
+      try {
+        const response = await axios.put(
+          endpoints.API_URL + "toys/" + updatedToy.id,
+          updatedToyWithNewImage
+        );
+
+        if (response.status === 200) {
+          // Emit socket event and close modal if the update was successful
+          socket.emit("toyUpdated", { toyId: updatedToy.id });
+          handleModalClose();
+          setEditMode(false);
+        } else {
+          throw new Error("Toy update failed with status " + response.status);
+        }
+      } catch (error) {
+        console.error(
+          "Error updating toy:",
+          error.response?.data || error.message
+        );
+      }
     } catch (error) {
-      console.error("Error updating toy", error);
+      console.error("Unexpected error:", error);
     }
-  };  
+  };
 
   const handleCheckboxChange = (name) => {
     if (!editMode) {
@@ -382,13 +408,13 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
     try {
       // Delete the toy record from the database
       await axios.delete(endpoints.API_URL + "toys/" + id);
-  
+
       // Now, request the backend to delete the image file using the src information
       await axios.post(endpoints.API_URL + "delete-image", { src });
-  
+
       // Emit a socket event after the toy and its image are deleted
-      socket.emit('toyDeleted', { toyId: id });
-  
+      socket.emit("toyDeleted", { toyId: id });
+
       handleModalClose();
     } catch (error) {
       console.error("Error deleting toy or its image", error);
@@ -518,14 +544,15 @@ const ThumbModal = ({ toy, show, handleModalClose, editMode, setEditMode }) => {
                 </div>
                 <div className="row g-0">
                   <div className="col">
-                    
-                      <>
-                        <div className="title form-label">Current Image Path</div>
-                        <div className="form-control form-control-sm" disabled>
-                          {toy.src}
-                        </div>
-                      </>
-                      {!editMode ? '' : (
+                    <>
+                      <div className="title form-label">Current Image Path</div>
+                      <div className="form-control form-control-sm" disabled>
+                        {toy.src}
+                      </div>
+                    </>
+                    {!editMode ? (
+                      ""
+                    ) : (
                       <FormField
                         addClass={"title"}
                         label="Upload New Image"
